@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "819191942968",
+    "project_id": "fabrisync-d4a57",
+    "storage_bucket": "fabrisync-d4a57.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819191942968:android:11249c23ec1d0baf997bcd",
+        "android_client_info": {
+          "package_name": "app_214.j"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "819191942968-um2g2f01ajtq4qhka9kdsoo5pag5h2cp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvcW1ykVVHyp6Cwib3Y9LRIWLU1dxCMaA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "819191942968-um2g2f01ajtq4qhka9kdsoo5pag5h2cp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819191942968:android:3071197f11d1dfe7997bcd",
+        "android_client_info": {
+          "package_name": "com.example.fabri_sync"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "819191942968-um2g2f01ajtq4qhka9kdsoo5pag5h2cp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvcW1ykVVHyp6Cwib3Y9LRIWLU1dxCMaA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "819191942968-um2g2f01ajtq4qhka9kdsoo5pag5h2cp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

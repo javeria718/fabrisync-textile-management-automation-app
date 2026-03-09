@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Required for Flutter Web -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="fabri_sync">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>fabri_sync</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Firebase SDK (correct way for Flutter Web) -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrXu0RfAjy-sQTBz5NylslLTEdxEvsH9M",
+      authDomain: "fabrisync-d4a57.firebaseapp.com",
+      projectId: "fabrisync-d4a57",
+      storageBucket: "fabrisync-d4a57.firebasestorage.app",
+      messagingSenderId: "819191942968",
+      appId: "1:819191942968:web:afefccdc7d3d31c5997bcd",
+      measurementId: "G-DNXEQSKN1L"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+  </script>
+
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

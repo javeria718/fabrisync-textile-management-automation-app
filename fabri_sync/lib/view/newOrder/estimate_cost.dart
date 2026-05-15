@@ -1,160 +1,193 @@
 import 'package:fabri_sync/Model/orderModel.dart';
-import 'package:fabri_sync/controllers/new_order/estimate_cost_controller.dart';
+import 'package:fabri_sync/controllers/new_order/order_input_controller.dart';
+import 'package:fabri_sync/services/order_calculation_service.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/view/newOrder/order_summary.dart';
 import 'package:fabri_sync/widgets/custom_appBar.dart';
 import 'package:fabri_sync/widgets/new_order_widgets.dart';
-import 'package:fabri_sync/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
 class EstimateCostScreen extends StatefulWidget {
-  final TextEditingController quantityCtrl;
-  final TextEditingController materialCostCtrl;
-  final double estimatedTime;
-  final OrderModel? existingOrder;
-  final bool isEditing;
-
   const EstimateCostScreen({
     super.key,
-    required this.quantityCtrl,
-    required this.materialCostCtrl,
-    required this.estimatedTime,
+    required this.controller,
     this.existingOrder,
     this.isEditing = false,
   });
+
+  final OrderInputController controller;
+  final OrderModel? existingOrder;
+  final bool isEditing;
 
   @override
   State<EstimateCostScreen> createState() => _EstimateCostScreenState();
 }
 
 class _EstimateCostScreenState extends State<EstimateCostScreen> {
-  late final EstimateCostController controller;
+  OrderInputController get controller => widget.controller;
+  bool _isPreparingSummary = false;
 
   @override
   void initState() {
     super.initState();
-    controller = EstimateCostController()..addListener(_onCtrl);
-    fetchHourlyRate();
+    controller.addListener(_onControllerChanged);
+    if (controller.calculation == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await controller.calculateOrder();
+      });
+    }
   }
 
-  void _onCtrl() {
+  void _onControllerChanged() {
     if (!mounted) return;
     setState(() {});
   }
 
   @override
   void dispose() {
-    controller.removeListener(_onCtrl);
-    controller.dispose();
+    controller.removeListener(_onControllerChanged);
     super.dispose();
   }
 
-  Future<void> fetchHourlyRate() async {
-    final ok = await controller.fetchHourlyRate();
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Hourly rate not found in database!"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
-  }
+  Future<void> _next() async {
+    if (_isPreparingSummary) return;
 
-  void calculateCost() {
-    if (controller.isLoadingRate) return;
-
-    final qty = double.tryParse(widget.quantityCtrl.text) ?? 0;
-    final materialCost = double.tryParse(widget.materialCostCtrl.text) ?? 0;
-
-    controller.calculateCost(
-      estimatedTime: widget.estimatedTime,
-      qty: qty,
-      materialCost: materialCost,
-    );
-  }
-
-  void handleNext() {
-    if (!controller.hasCalculated) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please tap the card to calculate cost first."),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-      return;
+    if (controller.calculation == null) {
+      final error = await controller.calculateOrder();
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: AppColors.error),
+        );
+        return;
+      }
     }
 
-    final base = widget.existingOrder;
-    final tempOrder = OrderModel(
-      orderId:
-          base?.orderId ?? "ORD-${DateTime.now().millisecondsSinceEpoch}",
-      quantity: int.parse(widget.quantityCtrl.text),
-      currentDepartment: base?.currentDepartment ?? "Cutting",
-      status: base?.status ?? "Pending",
-      createdAt: base?.createdAt ?? DateTime.now(),
-      estimatedTime: widget.estimatedTime,
-      estimatedCost: controller.estimatedCost,
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OrderSummaryScreen(
-          order: tempOrder,
-          isEditing: widget.isEditing,
+    setState(() => _isPreparingSummary = true);
+    try {
+      await controller.ensureActualOrderId(existingOrder: widget.existingOrder);
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OrderSummaryScreen(
+            controller: controller,
+            existingOrder: widget.existingOrder,
+            isEditing: widget.isEditing,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isPreparingSummary = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final breakdown = controller.calculation?.costBreakdown;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.appBackground,
       appBar: buildGradientAppBar(
-        widget.isEditing ? "Edit Order" : "New Order",
+        widget.isEditing ? 'Edit Order' : 'New Order',
       ),
       body: gradientOrderBackground(
-        child: Center(
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: NewOrderGlassCard(
-                minHeight: 400,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    EstimateCard(
-                      title: "Estimated Cost",
-                      value: controller.estimatedCost == 0
-                          ? "Not Calculated"
-                          : "PKR ${controller.estimatedCost.toStringAsFixed(0)}",
-                      subtitle: controller.hasCalculated
-                          ? null
-                          : "Tap card to calculate",
-                      height: 140,
-                      onTap: calculateCost,
-                      isCardTapped: controller.isCardTapped,
-                    ),
+        child: SafeArea(
+          child: OrderWizardShell(
+            stepLabel: 'Step 4 of 5',
+            children: [
+              OrderStepCard(
+                title: 'Estimated Cost',
+                icon: Icons.currency_rupee,
+                child: breakdown == null
+                    ? const OrderEmptyState(text: 'Cost not calculated')
+                    : _CostBreakdownList(breakdown: breakdown),
+              ),
+              OrderActionBar(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.maybePop(context),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Back'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed:
+                        controller.hasValidDeliveryDate && !_isPreparingSummary
+                        ? _next
+                        : null,
+                    icon: _isPreparingSummary
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.arrow_forward),
+                    label: const Text('Next'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-                    const SizedBox(height: 150),
+class _CostBreakdownList extends StatelessWidget {
+  const _CostBreakdownList({required this.breakdown});
 
-                    SizedBox(
-                      width: double.infinity,
-                      child: primaryButton(
-                        context: context,
-                        text: "Next",
-                        onTap: handleNext,
-                      ),
-                    ),
-                  ],
-                ),
+  final OrderCostBreakdown breakdown;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _row('Material Total', breakdown.materialTotalCost),
+        _row('Labor Total', breakdown.laborTotalCost),
+        _row('Processing Cost', breakdown.processingTotalCost),
+        _row('Additional Charges', breakdown.additionalTotalCost),
+        _row('Rush Charges', breakdown.rushCharges),
+        const Divider(color: AppColors.divider),
+        _row('Estimated Total Cost', breakdown.estimatedTotalCost, bold: true),
+      ],
+    );
+  }
+
+  Widget _row(String label, double value, {bool bold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: bold ? AppColors.primaryText : AppColors.secondaryText,
+                fontWeight: bold ? FontWeight.w800 : FontWeight.w500,
               ),
             ),
           ),
-        ),
+          Text(
+            'PKR ${value.toStringAsFixed(0)}',
+            style: TextStyle(
+              color: AppColors.primaryText,
+              fontWeight: bold ? FontWeight.w800 : FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

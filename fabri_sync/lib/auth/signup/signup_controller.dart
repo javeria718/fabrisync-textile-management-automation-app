@@ -201,7 +201,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpController {
   SignUpController({required String role}) {
-    selectedRole = role.toLowerCase(); // 'admin' or 'manager'
+    selectedRole = role.toLowerCase(); // 'admin', 'manager', or 'employee_head'
   }
 
   final TextEditingController fullNameController = TextEditingController();
@@ -230,7 +230,7 @@ class SignUpController {
     'STITCHING',
     'THREADING',
     'QUALITY_CONTROL',
-    'PACKING',
+    'PACKAGING',
     'INSPECTION',
   ];
 
@@ -297,26 +297,31 @@ class SignUpController {
       return;
     }
 
-    // ✅ Manager must select dept
-    if (selectedRole == 'manager' &&
+    // ✅ Manager/Employee Head must select dept
+    if ((selectedRole == 'manager' || selectedRole == 'employee_head') &&
         (selectedDepartment == null || selectedDepartment!.isEmpty)) {
       showError(context, "Please select a department");
       return;
     }
 
-    // OPTIONAL: enforce single manager per dept at app-level too
-    // if (selectedRole == 'manager') {
-    //   final exists = await supabase
-    //       .from('profiles')
-    //       .select('id')
-    //       .eq('role', 'manager')
-    //       .eq('department', selectedDepartment!)
-    //       .maybeSingle();
-    //   if (exists != null) {
-    //     showError(context, "A manager for this department already exists.");
-    //     return;
-    //   }
-    // }
+    // Enforce only one manager or employee_head per department
+    if (selectedRole == 'manager' || selectedRole == 'employee_head') {
+      final exists = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('role', selectedRole)
+          .eq('department', selectedDepartment!)
+          .maybeSingle();
+      if (exists != null) {
+        showError(
+          context,
+          selectedRole == 'manager'
+              ? "A manager for this department already exists."
+              : "An Employee Head for this department already exists.",
+        );
+        return;
+      }
+    }
 
     await signUp(context);
   }
@@ -331,8 +336,8 @@ class SignUpController {
       final formattedMobile = '+92$mobile';
       final role = selectedRole.toLowerCase();
 
-      // ✅ dept only for manager
-      final dept = role == 'manager'
+      // ✅ dept only for manager or employee_head
+      final dept = (role == 'manager' || role == 'employee_head')
           ? (selectedDepartment ?? '').toUpperCase()
           : '';
 
@@ -371,7 +376,9 @@ class SignUpController {
         'email': email,
         'phone_number': formattedMobile,
         'role': role,
-        'department': role == 'manager' ? dept : null,
+        'department': (role == 'manager' || role == 'employee_head')
+            ? dept
+            : null,
       };
 
       try {
@@ -390,7 +397,9 @@ class SignUpController {
         email: email,
         phoneNumber: formattedMobile,
         role: role,
-        department: role == 'manager' ? dept : null,
+        department: (role == 'manager' || role == 'employee_head')
+            ? dept
+            : null,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

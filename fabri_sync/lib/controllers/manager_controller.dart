@@ -221,6 +221,7 @@
 // }
 import 'dart:async';
 
+import 'package:fabri_sync/Model/employee_head_models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -244,9 +245,21 @@ class ManagerController extends ChangeNotifier {
   Map<String, dynamic>? profile;
   List<Map<String, dynamic>> activeOrders = [];
   List<Map<String, dynamic>> deptOrders = [];
+  Map<String, DepartmentProgressSummary> orderProgress = {};
+  Map<String, Map<String, dynamic>> latestLogsByOrderId = {};
+  Map<String, dynamic>? selectedOrder;
+  List<OrderItemTracking> selectedOrderItems = [];
+  List<Map<String, dynamic>> selectedProgressRows = [];
+  List<Map<String, dynamic>> selectedLogs = [];
+  DepartmentProgressSummary selectedProgressSummary =
+      DepartmentProgressSummary.empty;
+  bool detailLoading = false;
+  String? detailError;
 
   // realtime/timers
   RealtimeChannel? ordersChannel;
+  RealtimeChannel? progressChannel;
+  RealtimeChannel? logsChannel;
   Timer? _ticker;
   Timer? _debounceRefresh;
 
@@ -289,6 +302,10 @@ class ManagerController extends ChangeNotifier {
 
   Future<void> refreshAll(String dept) async {
     await Future.wait([fetchActiveOrders(dept), fetchDeptOrders(dept)]);
+    final selected = selectedOrder;
+    if (selected != null && !_disposed) {
+      await loadOrderDetails(selected, notifyLoading: false);
+    }
   }
 
   Future<void> fetchActiveOrders(String department) async {
@@ -308,14 +325,22 @@ class ManagerController extends ChangeNotifier {
       o['quantity'] = qtyMap[oid] ?? 0;
     }
 
-    activeOrders = list;
+    activeOrders = list
+        .where((o) => (o['order_status'] ?? '').toString() != 'draft')
+        .toList();
+
+    await _loadProgressForOrders(dept);
+    _syncSelectedOrderAfterRefresh();
     if (_disposed) return;
     notifyListeners();
   }
 
   Future<void> fetchDeptOrders(String department) async {
     final dept = department.toUpperCase();
-    deptOrders = await _service.fetchDeptOrdersAllStatuses(dept);
+    final rows = await _service.fetchDeptOrdersAllStatuses(dept);
+    deptOrders = rows
+        .where((o) => (o['order_status'] ?? '').toString() != 'draft')
+        .toList();
     if (_disposed) return;
     notifyListeners();
   }
@@ -327,9 +352,17 @@ class ManagerController extends ChangeNotifier {
       supabase.removeChannel(ordersChannel!);
       ordersChannel = null;
     }
+    if (progressChannel != null) {
+      supabase.removeChannel(progressChannel!);
+      progressChannel = null;
+    }
+    if (logsChannel != null) {
+      supabase.removeChannel(logsChannel!);
+      logsChannel = null;
+    }
 
     ordersChannel = supabase
-        .channel('mgr-$dept')
+        .channel('mgr-orders-$dept')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
@@ -341,6 +374,48 @@ class ManagerController extends ChangeNotifier {
           ),
           callback: (_) {
             // ✅ debounced refresh guarded for dispose
+            _debounceRefresh?.cancel();
+            _debounceRefresh = Timer(const Duration(milliseconds: 250), () {
+              if (_disposed) return;
+              refreshAll(dept);
+            });
+          },
+        )
+        .subscribe();
+
+    progressChannel = supabase
+        .channel('mgr-progress-$dept')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'item_department_progress',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'department',
+            value: dept,
+          ),
+          callback: (_) {
+            _debounceRefresh?.cancel();
+            _debounceRefresh = Timer(const Duration(milliseconds: 250), () {
+              if (_disposed) return;
+              refreshAll(dept);
+            });
+          },
+        )
+        .subscribe();
+
+    logsChannel = supabase
+        .channel('mgr-logs-$dept')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'item_progress_logs',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'department',
+            value: dept,
+          ),
+          callback: (_) {
             _debounceRefresh?.cancel();
             _debounceRefresh = Timer(const Duration(milliseconds: 250), () {
               if (_disposed) return;
@@ -369,6 +444,127 @@ class ManagerController extends ChangeNotifier {
       activeOrders.where(isExceeded).toList();
 
   List<Map<String, dynamic>> get queuePreview => deptOrders.take(4).toList();
+
+  DepartmentProgressSummary summaryForOrder(Map<String, dynamic> order) {
+    final orderId = (order['order_id'] ?? '').toString();
+    return orderProgress[orderId] ??
+        DepartmentProgressSummary(
+          orderId: orderId,
+          department: (order['department'] ?? '').toString(),
+          totalQuantity: 0,
+          completedQuantity: 0,
+        );
+  }
+
+  Map<String, dynamic>? latestLogForOrder(Map<String, dynamic> order) {
+    final orderId = (order['order_id'] ?? '').toString();
+    return latestLogsByOrderId[orderId];
+  }
+
+  Future<void> loadOrderDetails(
+    Map<String, dynamic> order, {
+    bool notifyLoading = true,
+  }) async {
+    final orderId = (order['order_id'] ?? '').toString();
+    final dept = (profile?['department'] ?? order['department'] ?? '')
+        .toString()
+        .toUpperCase();
+    if (orderId.isEmpty || dept.isEmpty) return;
+
+    selectedOrder = order;
+    detailLoading = true;
+    detailError = null;
+    if (notifyLoading && !_disposed) notifyListeners();
+
+    try {
+      final items = await _service.fetchOrderItems(orderId);
+      selectedProgressRows = await _service.fetchDepartmentProgressForOrder(
+        orderId,
+        dept,
+      );
+      selectedLogs = await _service.fetchProgressLogs(orderId, dept);
+      final progressByItemId = <String, Map<String, dynamic>>{};
+      for (final row in selectedProgressRows) {
+        final itemId = (row['item_id'] ?? '').toString();
+        if (itemId.isNotEmpty) progressByItemId[itemId] = row;
+      }
+
+      selectedOrderItems = items
+          .map((item) => item.copyWithProgress(progressByItemId[item.id]))
+          .toList();
+      selectedProgressSummary = _summaryFromItems(
+        orderId,
+        dept,
+        selectedOrderItems,
+      );
+      orderProgress = {
+        ...orderProgress,
+        orderId: selectedProgressSummary,
+      };
+      if (selectedLogs.isNotEmpty) {
+        latestLogsByOrderId = {
+          ...latestLogsByOrderId,
+          orderId: selectedLogs.first,
+        };
+      }
+    } catch (e) {
+      detailError = e.toString();
+    } finally {
+      detailLoading = false;
+      if (_disposed) return;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _loadProgressForOrders(String dept) async {
+    final summaries = <String, DepartmentProgressSummary>{};
+    final latestLogs = <String, Map<String, dynamic>>{};
+    for (final order in activeOrders) {
+      final orderId = (order['order_id'] ?? '').toString();
+      if (orderId.isEmpty) continue;
+      summaries[orderId] = await _service.calculateProgress(orderId, dept);
+      final latest = await _service.fetchLatestProgressLog(orderId, dept);
+      if (latest != null) latestLogs[orderId] = latest;
+    }
+    orderProgress = summaries;
+    latestLogsByOrderId = latestLogs;
+  }
+
+  void _syncSelectedOrderAfterRefresh() {
+    final selected = selectedOrder;
+    if (selected == null) return;
+    final selectedOrderId = (selected['order_id'] ?? '').toString();
+    for (final order in activeOrders) {
+      if ((order['order_id'] ?? '').toString() == selectedOrderId) {
+        selectedOrder = order;
+        return;
+      }
+    }
+    for (final order in deptOrders) {
+      if ((order['order_id'] ?? '').toString() == selectedOrderId) {
+        selectedOrder = order;
+        return;
+      }
+    }
+    selectedOrder = null;
+    selectedOrderItems = [];
+    selectedProgressRows = [];
+    selectedLogs = [];
+    selectedProgressSummary = DepartmentProgressSummary.empty;
+  }
+
+  DepartmentProgressSummary _summaryFromItems(
+    String orderId,
+    String department,
+    List<OrderItemTracking> items,
+  ) {
+    return DepartmentProgressSummary(
+      orderId: orderId,
+      department: department,
+      totalQuantity: items.length,
+      completedQuantity: items.where((item) => item.isCompleted).length,
+    );
+  }
 
   // toggles
   void toggleProfileCard() {
@@ -444,7 +640,7 @@ class ManagerController extends ChangeNotifier {
   Future<void> completeOrder(Map<String, dynamic> o) async {
     final id = (o['id'] ?? '').toString(); // ✅ UUID safe
     if (id.isEmpty) return;
-    await _service.markCompleted(id);
+    return;
   }
 
   @override
@@ -455,6 +651,14 @@ class ManagerController extends ChangeNotifier {
     if (ordersChannel != null) {
       supabase.removeChannel(ordersChannel!);
       ordersChannel = null;
+    }
+    if (progressChannel != null) {
+      supabase.removeChannel(progressChannel!);
+      progressChannel = null;
+    }
+    if (logsChannel != null) {
+      supabase.removeChannel(logsChannel!);
+      logsChannel = null;
     }
     super.dispose();
   }

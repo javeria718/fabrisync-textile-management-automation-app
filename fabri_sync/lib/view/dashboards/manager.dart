@@ -1319,7 +1319,7 @@
 //       return Icons.settings;
 //     case 'QUALITY_CONTROL':
 //       return Icons.verified_outlined;
-//     case 'PACKING':
+//     case 'PACKAGING':
 //       return Icons.inventory_2_outlined;
 //     case 'INSPECTION':
 //       return Icons.search_rounded;
@@ -1329,6 +1329,7 @@
 // }
 import 'dart:ui';
 import 'package:fabri_sync/auth/login/login_page.dart';
+import 'package:fabri_sync/services/auth_navigation_service.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/view/dashboards/tables/manager_table.dart';
 import 'package:fabri_sync/widgets/glass_Card.dart';
@@ -1359,8 +1360,10 @@ class _ManagerView extends StatelessWidget {
 
     if (c.profile == null) {
       return const Scaffold(
-        backgroundColor: Color(0xFF0B1220),
-        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+        backgroundColor: AppColors.appBackground,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primaryAccent),
+        ),
       );
     }
 
@@ -1374,7 +1377,7 @@ class _ManagerView extends StatelessWidget {
     final hasAlerts = near.isNotEmpty || exceeded.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1220),
+      backgroundColor: AppColors.appBackground,
       appBar: _buildAdminLikeAppBar(
         context,
         c,
@@ -1422,6 +1425,8 @@ class _ManagerView extends StatelessWidget {
                           const SizedBox(height: 18),
                           _sectionActive(c),
                         ],
+                        const SizedBox(height: 18),
+                        _sectionTrackingDetails(c),
                       ],
                     ),
                   ),
@@ -1454,20 +1459,14 @@ class _ManagerView extends StatelessWidget {
                         (c.profile!['phone_number'] ?? '').toString(),
                       ),
                       const SizedBox(height: 14),
-                      Divider(color: Colors.white.withOpacity(0.14)),
+                      const Divider(color: AppColors.divider),
                       const SizedBox(height: 12),
 
-                      // ✅ FIXED LOGOUT (NO '/login' NAMED ROUTE)
                       GestureDetector(
                         onTap: () async {
-                          await c.supabase.auth.signOut();
-                          if (!context.mounted) return;
-
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (_) => const LoginPage(expectedRole: ''),
-                            ),
-                            (route) => false,
+                          await AuthNavigationService.logoutAndNavigate(
+                            context,
+                            'manager',
                           );
                         },
                         child: Container(
@@ -1475,7 +1474,7 @@ class _ManagerView extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: Colors.redAccent.withOpacity(0.95),
+                            color: AppColors.error,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
@@ -1542,7 +1541,7 @@ class _ManagerView extends StatelessWidget {
               child: const Text(
                 "View Full",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.primaryAccent,
                   decoration: TextDecoration.underline,
                 ),
               ),
@@ -1553,6 +1552,8 @@ class _ManagerView extends StatelessWidget {
             queuePreview: c.queuePreview,
             formatDate: c.formatDate,
             formatTime: c.formatTime,
+            selectedOrderId: (c.selectedOrder?['order_id'] ?? '').toString(),
+            onViewDetails: c.loadOrderDetails,
           ),
         ],
       ),
@@ -1577,10 +1578,24 @@ class _ManagerView extends StatelessWidget {
             remainingSeconds: c.remainingSeconds,
             isAlert: c.isAlert,
             formatCountdown: c.formatCountdown,
-            onComplete: c.completeOrder,
+            summaryForOrder: c.summaryForOrder,
+            latestLogForOrder: c.latestLogForOrder,
+            selectedOrderId: (c.selectedOrder?['order_id'] ?? '').toString(),
+            onViewDetails: c.loadOrderDetails,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _sectionTrackingDetails(ManagerController c) {
+    return ManagerOrderDetailsPanel(
+      selectedOrder: c.selectedOrder,
+      loading: c.detailLoading,
+      error: c.detailError,
+      items: c.selectedOrderItems,
+      summary: c.selectedProgressSummary,
+      logs: c.selectedLogs,
     );
   }
 
@@ -1592,11 +1607,15 @@ class _ManagerView extends StatelessWidget {
   }) {
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: AppColors.primaryText,
+        ),
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       elevation: 0,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
       centerTitle: false,
       titleSpacing: 16,
       title: Row(
@@ -1626,52 +1645,16 @@ class _ManagerView extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: AppColors.primaryText,
               ),
             ),
           ),
         ],
       ),
-      flexibleSpace: ClipRect(
-        child: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: AppGradients.adminAppBar,
-                ),
-              ),
-            ),
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(color: Colors.white.withOpacity(0.04)),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 18,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.25),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 1,
-                color: Colors.white.withOpacity(0.10),
-              ),
-            ),
-          ],
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          border: Border(bottom: BorderSide(color: AppColors.border)),
         ),
       ),
       actions: [
@@ -1679,7 +1662,10 @@ class _ManagerView extends StatelessWidget {
           tooltip: "Alerts",
           icon: Stack(
             children: [
-              const Icon(Icons.notifications_none, color: Colors.white),
+              const Icon(
+                Icons.notifications_none,
+                color: AppColors.primaryText,
+              ),
               if (hasAlerts)
                 Positioned(
                   right: 0,
@@ -1688,7 +1674,7 @@ class _ManagerView extends StatelessWidget {
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.redAccent,
+                      color: AppColors.error,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -1701,7 +1687,11 @@ class _ManagerView extends StatelessWidget {
           onTap: c.toggleProfileCard,
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(Icons.account_circle, size: 32, color: Colors.white),
+            child: Icon(
+              Icons.account_circle,
+              size: 32,
+              color: AppColors.primaryText,
+            ),
           ),
         ),
         const SizedBox(width: 8),
@@ -1709,7 +1699,11 @@ class _ManagerView extends StatelessWidget {
     );
   }
 
-  Widget _row(IconData icon, String text, {Color color = Colors.white}) {
+  Widget _row(
+    IconData icon,
+    String text, {
+    Color color = AppColors.primaryText,
+  }) {
     return Row(
       children: [
         Icon(icon, size: 18, color: color),
@@ -1730,6 +1724,8 @@ String _prettyDept(String dept) {
   switch (d) {
     case 'QUALITY_CONTROL':
       return 'QUALITY CONTROL';
+    case 'PACKAGING':
+      return 'Packaging';
     default:
       return d;
   }
@@ -1745,7 +1741,7 @@ IconData _departmentIcon(String dept) {
       return Icons.settings;
     case 'QUALITY_CONTROL':
       return Icons.verified_outlined;
-    case 'PACKING':
+    case 'PACKAGING':
       return Icons.inventory_2_outlined;
     case 'INSPECTION':
       return Icons.search_rounded;

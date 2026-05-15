@@ -1,18 +1,8 @@
+import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:flutter/material.dart';
 
 BoxDecoration glassCardDecoration() {
-  return BoxDecoration(
-    borderRadius: BorderRadius.circular(20),
-    color: Colors.white.withOpacity(0.05),
-    border: Border.all(color: Colors.white.withOpacity(0.12)),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.2),
-        blurRadius: 18,
-        offset: const Offset(0, 8),
-      ),
-    ],
-  );
+  return AppDecorations.surface(radius: 20);
 }
 
 class GlassCard extends StatelessWidget {

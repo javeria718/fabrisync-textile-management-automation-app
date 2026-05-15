@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
+import 'package:flutter/material.dart';
 
 class CustomTextFormField extends StatefulWidget {
   final String label;
@@ -11,11 +11,6 @@ class CustomTextFormField extends StatefulWidget {
   final String? Function(String?)? validator;
   final Widget? suffix;
   final ValueChanged<String>? onChanged;
-
-  /// ✅ NEW (optional): frosted glass style for login/signup
-  /// When true:
-  /// - Unfocused: translucent field on gradient
-  /// - Focused: field turns white like reference image
   final bool frostedStyle;
 
   const CustomTextFormField({
@@ -29,7 +24,7 @@ class CustomTextFormField extends StatefulWidget {
     this.validator,
     this.suffix,
     this.onChanged,
-    this.frostedStyle = false, // ✅ default safe
+    this.frostedStyle = false,
   });
 
   @override
@@ -48,7 +43,6 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     _ownsFocusNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_handleFocusChange);
-
     _obscureText = widget.obscureText;
   }
 
@@ -84,29 +78,16 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Modern radius
     final radius = BorderRadius.circular(14);
-
-    // ✅ Frosted style colors (like image)
     final fillColor = widget.frostedStyle
-        ? (isFocused
-              ? Colors.white.withOpacity(0.92) // focus => white
-              : Colors.white.withOpacity(0.10)) // unfocus => translucent
-        : Colors.grey[100];
-
-    final textColor = widget.frostedStyle
-        ? (isFocused ? Colors.black87 : Colors.white.withOpacity(0.92))
-        : Colors.black87;
-
-    final iconColor = widget.frostedStyle
-        ? (isFocused ? Colors.black54 : Colors.white.withOpacity(0.75))
-        : Colors.grey;
-
-    final borderColor = widget.frostedStyle
-        ? (isFocused
-              ? Colors.white.withOpacity(0.35)
-              : Colors.white.withOpacity(0.18))
-        : Colors.grey;
+        ? (isFocused ? AppColors.surface : AppColors.surfaceMuted)
+        : AppColors.surface;
+    final iconColor = isFocused
+        ? AppColors.primaryAccent
+        : AppColors.secondaryText;
+    final borderColor = isFocused
+        ? AppColors.primaryAccent
+        : AppColors.border;
 
     return TextFormField(
       focusNode: _focusNode,
@@ -115,22 +96,18 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       obscureText: widget.obscureText ? _obscureText : false,
       onChanged: widget.onChanged,
       validator: widget.validator,
-      style: TextStyle(
-        color: textColor,
+      style: const TextStyle(
+        color: AppColors.primaryText,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
-      cursorColor: widget.frostedStyle
-          ? (isFocused ? Colors.black87 : Colors.white)
-          : Colors.black87,
+      cursorColor: AppColors.primaryAccent,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(
           vertical: 16,
           horizontal: 18,
         ),
-
         prefixIcon: Icon(widget.icon, color: iconColor),
-
         suffixIcon:
             widget.suffix ??
             (widget.obscureText
@@ -144,30 +121,20 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                         setState(() => _obscureText = !_obscureText),
                   )
                 : null),
-
         filled: true,
         fillColor: fillColor,
-
-        // ✅ IMPORTANT: labelText + floating styles (label will NOT disappear)
         labelText: widget.label,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
-
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: widget.frostedStyle
-              ? Colors.white.withOpacity(0.75)
-              : Colors.grey,
+          color: AppColors.secondaryText,
         ),
-
-        floatingLabelStyle: TextStyle(
+        floatingLabelStyle: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: widget.frostedStyle
-              ? (isFocused ? Colors.black87 : Colors.white.withOpacity(0.85))
-              : Colors.black87,
+          color: AppColors.primaryAccent,
         ),
-
         border: OutlineInputBorder(borderRadius: radius),
         enabledBorder: OutlineInputBorder(
           borderRadius: radius,
@@ -177,7 +144,6 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           borderRadius: radius,
           borderSide: BorderSide(color: borderColor, width: 1.2),
         ),
-
         errorBorder: OutlineInputBorder(
           borderRadius: radius,
           borderSide: const BorderSide(
@@ -196,7 +162,6 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     );
   }
 }
-// ------------------------
 
 class FrostedDropdown extends StatefulWidget {
   final String? value;
@@ -213,6 +178,7 @@ class FrostedDropdown extends StatefulWidget {
     required this.icon,
     required this.items,
     required this.onChanged,
+    super.key,
   });
 
   @override
@@ -238,34 +204,18 @@ class _FrostedDropdownState extends State<FrostedDropdown> {
   @override
   Widget build(BuildContext context) {
     final hasFocus = _focusNode.hasFocus;
-
-    // ✅ MATCH CustomTextFormField behavior
-    final fillColor = hasFocus
-        ? Colors.white.withOpacity(0.92) // focus => white
-        : Colors.white.withOpacity(0.10); // unfocus => translucent
-
-    final valueTextColor = hasFocus
-        ? Colors.black87
-        : Colors.white.withOpacity(0.92);
-    final hintColor = hasFocus
-        ? Colors.black45
-        : Colors.white.withOpacity(0.60);
-
+    final fillColor = hasFocus ? AppColors.surface : AppColors.surfaceMuted;
     final iconColor = hasFocus
-        ? Colors.black54
-        : Colors.white.withOpacity(0.75);
-
+        ? AppColors.primaryAccent
+        : AppColors.secondaryText;
     final borderColor = hasFocus
-        ? Colors.white.withOpacity(0.35)
-        : Colors.white.withOpacity(0.18);
+        ? AppColors.primaryAccent
+        : AppColors.border;
 
     return DropdownButtonFormField<String>(
       focusNode: _focusNode,
       value: widget.value,
       isExpanded: true,
-
-      // ✅ IMPORTANT: Force selected text rendering (fixes ".."/blank)
-      // And now it matches TextField: focus=>black, unfocus=>white
       selectedItemBuilder: (context) {
         return widget.items.map((item) {
           final text = (item.child is Text)
@@ -277,45 +227,38 @@ class _FrostedDropdownState extends State<FrostedDropdown> {
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: valueTextColor,
-                fontWeight: FontWeight.w600, // same as TextField
+              style: const TextStyle(
+                color: AppColors.primaryText,
+                fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
             ),
           );
         }).toList();
       },
-
-      // field text style (fallback)
-      style: TextStyle(
-        color: valueTextColor,
+      style: const TextStyle(
+        color: AppColors.primaryText,
         fontWeight: FontWeight.w600,
         fontSize: 14,
       ),
-
-      // ✅ menu background opaque to avoid blur
-      dropdownColor: const Color(0xFF0B1220),
-
+      dropdownColor: AppColors.surface,
       iconEnabledColor: iconColor,
-
       hint: Text(
         widget.hintText,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: hintColor,
+        style: const TextStyle(
+          color: AppColors.secondaryText,
           fontWeight: FontWeight.w600,
           fontSize: 14,
         ),
       ),
-
       items: widget.items.map((item) {
         return DropdownMenuItem<String>(
           value: item.value,
           child: DefaultTextStyle.merge(
             style: const TextStyle(
-              color: Colors.white, // menu items always crisp white
+              color: AppColors.primaryText,
               fontWeight: FontWeight.w700,
               fontSize: 14,
             ),
@@ -323,33 +266,27 @@ class _FrostedDropdownState extends State<FrostedDropdown> {
           ),
         );
       }).toList(),
-
       onChanged: widget.onChanged,
-
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(
           vertical: 16,
           horizontal: 18,
         ),
         prefixIcon: Icon(widget.icon, color: iconColor),
-
         filled: true,
         fillColor: fillColor,
-
-        // ✅ same label rules as CustomTextFormField
         labelText: widget.label,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: hasFocus ? Colors.black54 : Colors.white,
+          color: AppColors.secondaryText,
         ),
-        floatingLabelStyle: TextStyle(
+        floatingLabelStyle: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: hasFocus ? Colors.black87 : Colors.white,
+          color: AppColors.primaryAccent,
         ),
-
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: borderColor, width: 1),

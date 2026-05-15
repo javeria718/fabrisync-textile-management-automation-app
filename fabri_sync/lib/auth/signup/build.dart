@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
 
 Widget buildPasswordRule(String text, bool isValid) {
-  final okColor = Colors.greenAccent.shade200;
-  final idleColor = Colors.white.withOpacity(0.70);
+  final okColor = AppColors.accentGreen;
+  const idleColor = AppColors.secondaryText;
 
   return Padding(
     padding: const EdgeInsets.only(bottom: 6),

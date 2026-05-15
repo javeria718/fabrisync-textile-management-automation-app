@@ -1,138 +1,838 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
-class AppColors {
-  static const Color customAppThemeColor = Color(0xFFd87089);
-  static const Color customRedColor = Color.fromARGB(202, 236, 7, 7);
-  static const Color customBlueColor = Color(0xFF0A4DAB);
-  static const Color customBgColor = Color(0xFFF2F4F7);
-}
+// class AppColors {
+//   static const Color appBackground = Color(0xFFF5F6FA);
+//   static const Color appBackgroundSoft = Color(0xFFF8FAFC);
+//   static const Color surface = Color(0xFFFFFFFF);
+//   static const Color surfaceMuted = Color(0xFFF9FAFB);
+//   static const Color border = Color(0xFFE5E7EB);
+//   static const Color divider = Color(0xFFE5E7EB);
 
-class AppGradients {
-  static const adminAppBar = [Color(0xFF0F172A), Color(0xFF111827)];
-  static const adminAccent = [Color(0xFF0EA5E9), Color(0xFF2563EB)];
-}
+//   static const Color primaryText = Color(0xFF1F2937);
+//   static const Color secondaryText = Color(0xFF6B7280);
 
-class AppTextStyles {
-  // -------------------------------
-  // Gradient shader for primary title
-  // -------------------------------
-  static Shader gradientBlueShader = const LinearGradient(
-    colors: <Color>[
-      Color.fromARGB(255, 139, 169, 224), // lighter blue
-      Color(0xFF2A5298), // rich deep blue
-    ],
-  ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+//   static const Color primaryAccent = Color(0xFF7C4DFF);
+//   static const Color accentBlue = Color(0xFF42A5F5);
+//   static const Color accentPink = Color(0xFFFF6B9A);
+//   static const Color accentGreen = Color(0xFF6FCF97);
+//   static const Color accentYellow = Color(0xFFF2C94C);
+//   static const Color accentOrange = Color(0xFFF2994A);
 
-  // -------------------------------
-  // Title Shadows
-  // -------------------------------
-  static const List<Shadow> textShadows = [
-    Shadow(offset: Offset(2, 2), blurRadius: 3, color: Colors.black26),
-    Shadow(offset: Offset(-1, -1), blurRadius: 2, color: Colors.white24),
-  ];
+//   static const Color success = Color(0xFF27AE60);
+//   static const Color warning = Color(0xFFF2994A);
+//   static const Color error = Color(0xFFEB5757);
+//   static const Color info = accentBlue;
 
-  // -------------------------------
-  // Main Title TextStyle (FabriSync)
-  // -------------------------------
-  // static TextStyle titleStyle = TextStyle(
-  //   fontSize: 36,
-  //   fontWeight: FontWeight.bold,
-  //   fontFamily: 'Poppins',
-  //   letterSpacing: 1.5,
-  //   foreground: Paint()..shader = gradientBlueShader,
-  //   shadows: textShadows,
-  // );
+//   static const Color shadow = Color(0x140F172A);
 
-  // // -------------------------------
-  // // Subtitle TextStyle (Responsive suggestion)
-  // // -------------------------------
-  // static TextStyle subtitleStyle = TextStyle(
-  //   fontSize: 15,
-  //   height: 1.4,
-  //   fontFamily: 'Poppins',
-  //   color: Colors.grey.shade700,
-  //   letterSpacing: 0.5,
-  // );
-  // -------------------------------
-  // Title TextStyle – Premium Gradient
-  // -------------------------------
-  static TextStyle titleStyleW = TextStyle(
-    fontSize: 38,
-    fontWeight: FontWeight.w700,
-    fontFamily: 'Poppins',
-    letterSpacing: 1.6,
-    foreground: Paint()
-      ..shader = const LinearGradient(
-        colors: [
-          Color(0xFF7DD3FC), // light cyan
-          Color(0xFF38BDF8), // sky blue
-          Color(0xFF818CF8), // soft indigo
-        ],
-      ).createShader(const Rect.fromLTWH(0, 0, 300, 80)),
-    shadows: const [
-      Shadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 4)),
-    ],
-  );
+//   // Legacy aliases kept so existing code can migrate safely.
+//   static const Color customAppThemeColor = primaryAccent;
+//   static const Color customRedColor = error;
+//   static const Color customBlueColor = primaryAccent;
+//   static const Color customBgColor = appBackground;
+// }
 
-  // -------------------------------
-  // Subtitle TextStyle – Soft Elegant Contrast
-  // -------------------------------
-  static TextStyle subtitleStyleW = TextStyle(
-    fontSize: 15.5,
-    height: 1.5,
-    fontFamily: 'Poppins',
-    letterSpacing: 0.4,
-    color: Colors.white.withOpacity(0.75),
-  );
-}
+// class AppGradients {
+//   static const adminAppBar = [Color(0xFFFFFFFF), Color(0xFFF8FAFC)];
+//   static const adminAccent = [AppColors.primaryAccent, AppColors.accentBlue];
+// }
 
-// Widget gradientBackground({required Widget child}) {
-//   return Container(
-//     decoration: const BoxDecoration(
-//       gradient: LinearGradient(
-//         colors: [Color(0xFF0A2E6F), Color(0xFF1E5AA8), Color(0xFF4C8ED9)],
-//         begin: Alignment.topCenter,
-//         end: Alignment.bottomCenter,
+// class AppShadows {
+//   static const List<BoxShadow> card = [
+//     BoxShadow(
+//       color: AppColors.shadow,
+//       blurRadius: 24,
+//       offset: Offset(0, 10),
+//     ),
+//   ];
+
+//   static const List<BoxShadow> subtle = [
+//     BoxShadow(
+//       color: AppColors.shadow,
+//       blurRadius: 12,
+//       offset: Offset(0, 4),
+//     ),
+//   ];
+// }
+
+// class AppDecorations {
+//   static BoxDecoration surface({
+//     double radius = 20,
+//     Color color = AppColors.surface,
+//     bool elevated = true,
+//   }) {
+//     return BoxDecoration(
+//       color: color,
+//       borderRadius: BorderRadius.circular(radius),
+//       border: Border.all(color: AppColors.border),
+//       boxShadow: elevated ? AppShadows.card : AppShadows.subtle,
+//     );
+//   }
+
+//   static BoxDecoration softPanel({
+//     double radius = 18,
+//     Color color = AppColors.surfaceMuted,
+//   }) {
+//     return BoxDecoration(
+//       color: color,
+//       borderRadius: BorderRadius.circular(radius),
+//       border: Border.all(color: AppColors.border),
+//     );
+//   }
+
+//   static BoxDecoration accentFill(
+//     Color color, {
+//     double radius = 14,
+//   }) {
+//     return BoxDecoration(
+//       color: color.withOpacity(0.14),
+//       borderRadius: BorderRadius.circular(radius),
+//       border: Border.all(color: color.withOpacity(0.22)),
+//     );
+//   }
+// }
+
+// class AppTextStyles {
+//   static Shader gradientBlueShader = const LinearGradient(
+//     colors: <Color>[
+//       AppColors.primaryAccent,
+//       AppColors.accentBlue,
+//     ],
+//   ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+
+//   static const List<Shadow> textShadows = [];
+
+//   static TextStyle titleStyleW = TextStyle(
+//     fontSize: 38,
+//     fontWeight: FontWeight.w700,
+//     fontFamily: 'Poppins',
+//     letterSpacing: 1.2,
+//     color: AppColors.primaryText,
+//   );
+
+//   static TextStyle subtitleStyleW = const TextStyle(
+//     fontSize: 15.5,
+//     height: 1.5,
+//     fontFamily: 'Poppins',
+//     letterSpacing: 0.2,
+//     color: AppColors.secondaryText,
+//   );
+// }
+
+// class AppTheme {
+//   static final ThemeData lightTheme = ThemeData(
+//     useMaterial3: true,
+//     fontFamily: 'Poppins',
+//     scaffoldBackgroundColor: AppColors.appBackground,
+//     colorScheme: ColorScheme.fromSeed(
+//       seedColor: AppColors.primaryAccent,
+//       primary: AppColors.primaryAccent,
+//       secondary: AppColors.accentBlue,
+//       surface: AppColors.surface,
+//       error: AppColors.error,
+//       brightness: Brightness.light,
+//     ),
+//     textTheme: const TextTheme(
+//       bodyLarge: TextStyle(color: AppColors.primaryText),
+//       bodyMedium: TextStyle(color: AppColors.primaryText),
+//       bodySmall: TextStyle(color: AppColors.secondaryText),
+//       titleLarge: TextStyle(color: AppColors.primaryText),
+//       titleMedium: TextStyle(color: AppColors.primaryText),
+//       titleSmall: TextStyle(color: AppColors.primaryText),
+//     ),
+//     appBarTheme: const AppBarTheme(
+//       backgroundColor: AppColors.surface,
+//       foregroundColor: AppColors.primaryText,
+//       elevation: 0,
+//       centerTitle: true,
+//       scrolledUnderElevation: 0,
+//       surfaceTintColor: Colors.transparent,
+//       titleTextStyle: TextStyle(
+//         fontFamily: 'Poppins',
+//         fontSize: 20,
+//         fontWeight: FontWeight.w700,
+//         color: AppColors.primaryText,
+//       ),
+//       iconTheme: IconThemeData(color: AppColors.primaryText),
+//     ),
+//     cardTheme: const CardThemeData(
+//       color: AppColors.surface,
+//       surfaceTintColor: Colors.transparent,
+//       elevation: 0,
+//       margin: EdgeInsets.zero,
+//     ),
+//     dividerColor: AppColors.divider,
+//     inputDecorationTheme: InputDecorationTheme(
+//       filled: true,
+//       fillColor: AppColors.surface,
+//       hintStyle: const TextStyle(color: AppColors.secondaryText),
+//       labelStyle: const TextStyle(color: AppColors.secondaryText),
+//       floatingLabelStyle: const TextStyle(color: AppColors.primaryAccent),
+//       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+//       border: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.border),
+//       ),
+//       enabledBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.border),
+//       ),
+//       focusedBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(
+//           color: AppColors.primaryAccent,
+//           width: 1.2,
+//         ),
+//       ),
+//       errorBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.error),
+//       ),
+//       focusedErrorBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.error),
 //       ),
 //     ),
-//     child: child,
+//     elevatedButtonTheme: ElevatedButtonThemeData(
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: AppColors.primaryAccent,
+//         foregroundColor: Colors.white,
+//         elevation: 0,
+//         shadowColor: Colors.transparent,
+//         minimumSize: const Size(0, 46),
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(14),
+//         ),
+//         textStyle: const TextStyle(
+//           fontSize: 15,
+//           fontWeight: FontWeight.w700,
+//           fontFamily: 'Poppins',
+//         ),
+//       ),
+//     ),
+//     outlinedButtonTheme: OutlinedButtonThemeData(
+//       style: OutlinedButton.styleFrom(
+//         foregroundColor: AppColors.primaryText,
+//         side: const BorderSide(color: AppColors.border),
+//         backgroundColor: AppColors.surface,
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(14),
+//         ),
+//         textStyle: const TextStyle(
+//           fontSize: 15,
+//           fontWeight: FontWeight.w600,
+//           fontFamily: 'Poppins',
+//         ),
+//       ),
+//     ),
+//     textButtonTheme: TextButtonThemeData(
+//       style: TextButton.styleFrom(
+//         foregroundColor: AppColors.primaryAccent,
+//         textStyle: const TextStyle(
+//           fontSize: 13,
+//           fontWeight: FontWeight.w600,
+//           fontFamily: 'Poppins',
+//         ),
+//       ),
+//     ),
+//     snackBarTheme: SnackBarThemeData(
+//       backgroundColor: AppColors.primaryText,
+//       contentTextStyle: const TextStyle(color: Colors.white),
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+//       behavior: SnackBarBehavior.floating,
+//     ),
 //   );
 // }
 
 // Widget gradientOrderBackground({required Widget child}) {
-//   // const blue = Color(0xFF0A4DAB);
-
 //   return Container(
-//     decoration: BoxDecoration(
+//     constraints: const BoxConstraints.expand(),
+//     decoration: const BoxDecoration(
 //       gradient: LinearGradient(
 //         begin: Alignment.topCenter,
 //         end: Alignment.bottomCenter,
-//         colors: [Color(0xFF0F172A), Color(0xFF111827)],
+//         colors: [AppColors.appBackgroundSoft, AppColors.appBackground],
 //       ),
-//       // gradient: LinearGradient(
-//       //   begin: Alignment.topLeft,
-//       //   end: Alignment.bottomRight,
-//       //   colors: [
-//       //     const Color(0xFF0B1220),
-//       //     blue.withOpacity(0.22),
-//       //     const Color(0xFF0B1220),
-//       //   ],
-//       // ),
 //     ),
 //     child: child,
 //   );
 // }
-Widget gradientOrderBackground({required Widget child}) {
-  return Container(
-    // ✅ ensures gradient fills whole screen even if child is small
-    constraints: const BoxConstraints.expand(),
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xFF0F172A), Color(0xFF111827)],
+
+//----------------------------------------------------------
+// import 'package:flutter/material.dart';
+
+// class AppColors {
+//   // 🔥 UPDATED (cooler modern background)
+//   static const Color appBackground = Color(0xFFF4F7FB);
+//   static const Color appBackgroundSoft = Color(0xFFF8FAFD);
+
+//   static const Color surface = Color(0xFFFFFFFF);
+//   static const Color surfaceMuted = Color(0xFFF9FAFB);
+//   static const Color border = Color(0xFFE5E7EB);
+//   static const Color divider = Color(0xFFE5E7EB);
+
+//   static const Color primaryText = Color(0xFF1F2937);
+//   static const Color secondaryText = Color(0xFF6B7280);
+
+//   static const Color primaryAccent = Color(0xFF7C4DFF);
+//   static const Color accentBlue = Color(0xFF42A5F5);
+//   static const Color accentPink = Color(0xFFFF6B9A);
+//   static const Color accentGreen = Color(0xFF6FCF97);
+//   static const Color accentYellow = Color(0xFFF2C94C);
+//   static const Color accentOrange = Color(0xFFF2994A);
+
+//   static const Color success = Color(0xFF27AE60);
+//   static const Color warning = Color(0xFFF2994A);
+//   static const Color error = Color(0xFFEB5757);
+//   static const Color info = accentBlue;
+
+//   // 🔥 UPDATED shadow (lighter + modern)
+//   static const Color shadow = Color(0x1A0F172A);
+
+//   // Legacy aliases
+//   static const Color customAppThemeColor = primaryAccent;
+//   static const Color customRedColor = error;
+//   static const Color customBlueColor = primaryAccent;
+//   static const Color customBgColor = appBackground;
+// }
+
+// class AppGradients {
+//   static const adminAppBar = [Color(0xFFFFFFFF), Color(0xFFF8FAFC)];
+//   static const adminAccent = [AppColors.primaryAccent, AppColors.accentBlue];
+// }
+
+// class AppShadows {
+//   // 🔥 UPDATED (softer, less heavy)
+//   static const List<BoxShadow> card = [
+//     BoxShadow(
+//       color: AppColors.shadow,
+//       blurRadius: 18,
+//       spreadRadius: -2,
+//       offset: Offset(0, 10),
+//     ),
+//   ];
+
+//   static const List<BoxShadow> subtle = [
+//     BoxShadow(
+//       color: AppColors.shadow,
+//       blurRadius: 10,
+//       spreadRadius: -2,
+//       offset: Offset(0, 4),
+//     ),
+//   ];
+// }
+
+// class AppDecorations {
+//   static BoxDecoration surface({
+//     double radius = 20,
+//     Color color = AppColors.surface,
+//     bool elevated = true,
+//   }) {
+//     return BoxDecoration(
+//       color: color,
+//       borderRadius: BorderRadius.circular(radius),
+//       border: Border.all(color: AppColors.border),
+//       boxShadow: elevated ? AppShadows.card : AppShadows.subtle,
+//     );
+//   }
+
+//   static BoxDecoration softPanel({
+//     double radius = 18,
+//     Color color = AppColors.surfaceMuted,
+//   }) {
+//     return BoxDecoration(
+//       color: color,
+//       borderRadius: BorderRadius.circular(radius),
+//       border: Border.all(color: AppColors.border),
+//     );
+//   }
+
+//   static BoxDecoration accentFill(Color color, {double radius = 14}) {
+//     return BoxDecoration(
+//       color: color.withOpacity(0.14),
+//       borderRadius: BorderRadius.circular(radius),
+//       border: Border.all(color: color.withOpacity(0.22)),
+//     );
+//   }
+// }
+
+// class AppTextStyles {
+//   static Shader gradientBlueShader = const LinearGradient(
+//     colors: <Color>[AppColors.primaryAccent, AppColors.accentBlue],
+//   ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+
+//   static const List<Shadow> textShadows = [];
+
+//   static TextStyle titleStyleW = const TextStyle(
+//     fontSize: 38,
+//     fontWeight: FontWeight.w700,
+//     fontFamily: 'Poppins',
+//     letterSpacing: 1.2,
+//     color: AppColors.primaryText,
+//   );
+
+//   static TextStyle subtitleStyleW = const TextStyle(
+//     fontSize: 15.5,
+//     height: 1.5,
+//     fontFamily: 'Poppins',
+//     letterSpacing: 0.2,
+//     color: AppColors.secondaryText,
+//   );
+// }
+
+// class AppTheme {
+//   static final ThemeData lightTheme = ThemeData(
+//     useMaterial3: true,
+//     fontFamily: 'Poppins',
+
+//     // 🔥 Keep base neutral (gradient handled separately)
+//     scaffoldBackgroundColor: AppColors.appBackground,
+
+//     colorScheme: ColorScheme.fromSeed(
+//       seedColor: AppColors.primaryAccent,
+//       primary: AppColors.primaryAccent,
+//       secondary: AppColors.accentBlue,
+//       surface: AppColors.surface,
+//       error: AppColors.error,
+//       brightness: Brightness.light,
+//     ),
+
+//     textTheme: const TextTheme(
+//       bodyLarge: TextStyle(color: AppColors.primaryText),
+//       bodyMedium: TextStyle(color: AppColors.primaryText),
+//       bodySmall: TextStyle(color: AppColors.secondaryText),
+//       titleLarge: TextStyle(color: AppColors.primaryText),
+//       titleMedium: TextStyle(color: AppColors.primaryText),
+//       titleSmall: TextStyle(color: AppColors.primaryText),
+//     ),
+
+//     appBarTheme: const AppBarTheme(
+//       backgroundColor: AppColors.surface,
+//       foregroundColor: AppColors.primaryText,
+//       elevation: 0,
+//       centerTitle: true,
+//       scrolledUnderElevation: 0,
+//       surfaceTintColor: Colors.transparent,
+//       titleTextStyle: TextStyle(
+//         fontFamily: 'Poppins',
+//         fontSize: 20,
+//         fontWeight: FontWeight.w700,
+//         color: AppColors.primaryText,
+//       ),
+//       iconTheme: IconThemeData(color: AppColors.primaryText),
+//     ),
+
+//     cardTheme: const CardThemeData(
+//       color: AppColors.surface,
+//       surfaceTintColor: Colors.transparent,
+//       elevation: 0,
+//       margin: EdgeInsets.zero,
+//     ),
+
+//     dividerColor: AppColors.divider,
+
+//     inputDecorationTheme: InputDecorationTheme(
+//       filled: true,
+//       fillColor: AppColors.surface,
+//       hintStyle: const TextStyle(color: AppColors.secondaryText),
+//       labelStyle: const TextStyle(color: AppColors.secondaryText),
+//       floatingLabelStyle: const TextStyle(color: AppColors.primaryAccent),
+//       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+//       border: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.border),
+//       ),
+//       enabledBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.border),
+//       ),
+//       focusedBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(
+//           color: AppColors.primaryAccent,
+//           width: 1.2,
+//         ),
+//       ),
+//       errorBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.error),
+//       ),
+//       focusedErrorBorder: OutlineInputBorder(
+//         borderRadius: BorderRadius.circular(14),
+//         borderSide: const BorderSide(color: AppColors.error),
+//       ),
+//     ),
+
+//     elevatedButtonTheme: ElevatedButtonThemeData(
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: AppColors.primaryAccent,
+//         foregroundColor: Colors.white,
+//         elevation: 0,
+//         shadowColor: Colors.transparent,
+//         minimumSize: const Size(0, 46),
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+//         textStyle: const TextStyle(
+//           fontSize: 15,
+//           fontWeight: FontWeight.w700,
+//           fontFamily: 'Poppins',
+//         ),
+//       ),
+//     ),
+
+//     outlinedButtonTheme: OutlinedButtonThemeData(
+//       style: OutlinedButton.styleFrom(
+//         foregroundColor: AppColors.primaryText,
+//         side: const BorderSide(color: AppColors.border),
+//         backgroundColor: AppColors.surface,
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+//         textStyle: const TextStyle(
+//           fontSize: 15,
+//           fontWeight: FontWeight.w600,
+//           fontFamily: 'Poppins',
+//         ),
+//       ),
+//     ),
+
+//     textButtonTheme: TextButtonThemeData(
+//       style: TextButton.styleFrom(
+//         foregroundColor: AppColors.primaryAccent,
+//         textStyle: const TextStyle(
+//           fontSize: 13,
+//           fontWeight: FontWeight.w600,
+//           fontFamily: 'Poppins',
+//         ),
+//       ),
+//     ),
+
+//     snackBarTheme: SnackBarThemeData(
+//       backgroundColor: AppColors.primaryText,
+//       contentTextStyle: const TextStyle(color: Colors.white),
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+//       behavior: SnackBarBehavior.floating,
+//     ),
+//   );
+// }
+
+// /// 🔥🔥 FULLY UPGRADED BACKGROUND WIDGET
+// Widget gradientOrderBackground({required Widget child}) {
+//   return Stack(
+//     children: [
+//       // 🌈 Modern layered gradient
+//       Container(
+//         constraints: const BoxConstraints.expand(),
+//         decoration: const BoxDecoration(
+//           gradient: LinearGradient(
+//             begin: Alignment.topLeft,
+//             end: Alignment.bottomRight,
+//             colors: [Color(0xFFF8FAFD), Color(0xFFF1F5F9), Color(0xFFEFF3F8)],
+//             stops: [0.0, 0.5, 1.0],
+//           ),
+//         ),
+//       ),
+
+//       // 💜 Subtle purple glow (top right)
+//       Positioned(
+//         top: -100,
+//         right: -100,
+//         child: Container(
+//           width: 300,
+//           height: 300,
+//           decoration: BoxDecoration(
+//             shape: BoxShape.circle,
+//             color: AppColors.primaryAccent.withOpacity(0.05),
+//           ),
+//         ),
+//       ),
+
+//       // 🔵 Subtle blue glow (bottom left)
+//       Positioned(
+//         bottom: -120,
+//         left: -80,
+//         child: Container(
+//           width: 250,
+//           height: 250,
+//           decoration: BoxDecoration(
+//             shape: BoxShape.circle,
+//             color: AppColors.accentBlue.withOpacity(0.04),
+//           ),
+//         ),
+//       ),
+
+//       child,
+//     ],
+//   );
+// }
+//------------------------------------------------------------
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+
+class AppColors {
+  // 🔥 NEW BACKGROUND (tinted, modern, not dull)
+  static const Color appBackground = Color(0xFFF6F8FF);
+  static const Color appBackgroundSoft = Color(0xFFF8FAFD);
+
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceMuted = Color(0xFFF9FAFB);
+
+  // 🔥 Slightly refined border (better contrast with new BG)
+  static const Color border = Color(0xFFE2E8F0);
+  static const Color divider = Color(0xFFE2E8F0);
+
+  static const Color primaryText = Color(0xFF1F2937);
+  static const Color secondaryText = Color(0xFF6B7280);
+
+  static const Color primaryAccent = Color(0xFF7C4DFF);
+  static const Color accentBlue = Color(0xFF42A5F5);
+  static const Color accentPink = Color(0xFFFF6B9A);
+  static const Color accentGreen = Color(0xFF6FCF97);
+  static const Color accentYellow = Color(0xFFF2C94C);
+  static const Color accentOrange = Color(0xFFF2994A);
+
+  static const Color success = Color(0xFF27AE60);
+  static const Color warning = Color(0xFFF2994A);
+  static const Color error = Color(0xFFEB5757);
+  static const Color info = accentBlue;
+
+  static const Color shadow = Color(0x1A0F172A);
+
+  // Legacy aliases
+  static const Color customAppThemeColor = primaryAccent;
+  static const Color customRedColor = error;
+  static const Color customBlueColor = primaryAccent;
+  static const Color customBgColor = appBackground;
+}
+
+class AppGradients {
+  static const adminAppBar = [Color(0xFFFFFFFF), Color(0xFFF8FAFC)];
+  static const adminAccent = [AppColors.primaryAccent, AppColors.accentBlue];
+}
+
+class AppShadows {
+  static const List<BoxShadow> card = [
+    BoxShadow(
+      color: AppColors.shadow,
+      blurRadius: 18,
+      spreadRadius: -2,
+      offset: Offset(0, 10),
+    ),
+  ];
+
+  static const List<BoxShadow> subtle = [
+    BoxShadow(
+      color: AppColors.shadow,
+      blurRadius: 10,
+      spreadRadius: -2,
+      offset: Offset(0, 4),
+    ),
+  ];
+}
+
+class AppDecorations {
+  static BoxDecoration surface({
+    double radius = 20,
+    Color color = AppColors.surface,
+    bool elevated = true,
+  }) {
+    return BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: AppColors.border),
+      boxShadow: elevated ? AppShadows.card : AppShadows.subtle,
+    );
+  }
+
+  static BoxDecoration softPanel({
+    double radius = 18,
+    Color color = AppColors.surfaceMuted,
+  }) {
+    return BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: AppColors.border),
+    );
+  }
+
+  static BoxDecoration accentFill(Color color, {double radius = 14}) {
+    return BoxDecoration(
+      color: color.withOpacity(0.14),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: color.withOpacity(0.22)),
+    );
+  }
+}
+
+class AppTextStyles {
+  static Shader gradientBlueShader = const LinearGradient(
+    colors: <Color>[AppColors.primaryAccent, AppColors.accentBlue],
+  ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+
+  static const List<Shadow> textShadows = [];
+
+  static TextStyle titleStyleW = const TextStyle(
+    fontSize: 38,
+    fontWeight: FontWeight.w700,
+    fontFamily: 'Poppins',
+    letterSpacing: 1.2,
+    color: AppColors.primaryText,
+  );
+
+  static TextStyle subtitleStyleW = const TextStyle(
+    fontSize: 15.5,
+    height: 1.5,
+    fontFamily: 'Poppins',
+    letterSpacing: 0.2,
+    color: AppColors.secondaryText,
+  );
+}
+
+class AppTheme {
+  static final ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
+    fontFamily: 'Poppins',
+    scaffoldBackgroundColor: AppColors.appBackground,
+
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primaryAccent,
+      primary: AppColors.primaryAccent,
+      secondary: AppColors.accentBlue,
+      surface: AppColors.surface,
+      error: AppColors.error,
+      brightness: Brightness.light,
+    ),
+
+    textTheme: const TextTheme(
+      bodyLarge: TextStyle(color: AppColors.primaryText),
+      bodyMedium: TextStyle(color: AppColors.primaryText),
+      bodySmall: TextStyle(color: AppColors.secondaryText),
+      titleLarge: TextStyle(color: AppColors.primaryText),
+      titleMedium: TextStyle(color: AppColors.primaryText),
+      titleSmall: TextStyle(color: AppColors.primaryText),
+    ),
+
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.primaryText,
+      elevation: 0,
+      centerTitle: true,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        color: AppColors.primaryText,
+      ),
+      iconTheme: IconThemeData(color: AppColors.primaryText),
+    ),
+
+    cardTheme: const CardThemeData(
+      color: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+    ),
+
+    dividerColor: AppColors.divider,
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surface,
+      hintStyle: const TextStyle(color: AppColors.secondaryText),
+      labelStyle: const TextStyle(color: AppColors.secondaryText),
+      floatingLabelStyle: const TextStyle(color: AppColors.primaryAccent),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppColors.primaryAccent,
+          width: 1.2,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.error),
       ),
     ),
-    child: child,
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryAccent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        minimumSize: const Size(0, 46),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    ),
+  );
+}
+
+/// 🔥 FINAL BACKGROUND (PROMINENT + BEAUTIFUL + MODERN)
+Widget gradientOrderBackground({required Widget child}) {
+  return Container(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFFDFEFF), // almost white (top)
+          Color(0xFFF5F7FF), // soft bluish
+          Color(0xFFEEF3FF), // gentle tint
+        ],
+        stops: [0.0, 0.5, 1.0],
+      ),
+    ),
+
+    child: Stack(
+      children: [
+        // 💜 Very subtle top highlight (NO blur)
+        Positioned(
+          top: -80,
+          right: -60,
+          child: Container(
+            width: 220,
+            height: 220,
+            decoration: BoxDecoration(
+              color: Color(0xFF7C4DFF).withOpacity(0.06),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+
+        // 🔵 Bottom soft tint
+        Positioned(
+          bottom: -100,
+          left: -60,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              color: Color(0xFF42A5F5).withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+
+        child,
+      ],
+    ),
   );
 }

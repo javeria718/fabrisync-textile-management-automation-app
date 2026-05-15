@@ -1,0 +1,1 @@
+Patch explanation: add debug prints in fetchAbayaCostConfig to log raw and normalized abayaType, fabricType, qualityGrade and query attempts.

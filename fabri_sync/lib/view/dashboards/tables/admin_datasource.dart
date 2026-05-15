@@ -1,424 +1,356 @@
-// import 'package:fabri_sync/Model/orderModel.dart';
-// import 'package:fabri_sync/view/tables/order_details.dart';
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
-
-// class OrdersDataSource extends DataTableSource {
-//   final List<OrderModel> orders;
-//   final BuildContext context;
-//   final Color blue;
-//   final supabase = Supabase.instance.client;
-
-//   OrdersDataSource(this.orders, this.context, this.blue);
-
-//   @override
-//   DataRow? getRow(int index) {
-//     if (index >= orders.length) return null;
-//     final order = orders[index];
-
-//     final createdAt = order.dateIn ?? order.createdAt;
-//     final difference = DateTime.now().difference(createdAt);
-//     final days = difference.inDays;
-//     final hours = difference.inHours % 24;
-//     final runningText = "${days}d ${hours}h";
-
-//     final rowColor = MaterialStateProperty.resolveWith<Color?>((states) {
-//       if (states.contains(MaterialState.selected))
-//         return blue.withOpacity(0.12);
-//       return index.isEven ? Colors.white : blue.withOpacity(0.03);
-//     });
-
-//     return DataRow.byIndex(
-//       index: index,
-//       color: rowColor,
-//       cells: [
-//         DataCell(Text((index + 1).toString())),
-//         DataCell(
-//           InkWell(
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(
-//                   builder: (_) => OrderDetailsScreen(order: order),
-//                 ),
-//               );
-//             },
-//             child: Text(
-//               order.orderId,
-//               style: TextStyle(
-//                 color: blue,
-//                 decoration: TextDecoration.underline,
-//               ),
-//             ),
-//           ),
-//         ),
-//         DataCell(Text(order.currentDepartment)),
-//         DataCell(Text(order.managerName ?? "-")),
-//         DataCell(
-//           Text(
-//             order.dateIn != null
-//                 ? DateFormat("dd MMM yyyy").format(order.dateIn!)
-//                 : "-",
-//           ),
-//         ),
-//         DataCell(
-//           Text(
-//             order.timeIn != null
-//                 ? DateFormat("hh:mm a").format(order.timeIn!)
-//                 : "-",
-//           ),
-//         ),
-//         DataCell(Text(runningText)),
-//         DataCell(
-//           Text(
-//             order.dateOut != null
-//                 ? DateFormat("dd MMM yyyy").format(order.dateOut!)
-//                 : "-",
-//           ),
-//         ),
-//         DataCell(
-//           Text(
-//             order.timeOut != null
-//                 ? DateFormat("hh:mm a").format(order.timeOut!)
-//                 : "-",
-//           ),
-//         ),
-//         DataCell(
-//           Chip(
-//             label: Text(order.status),
-//             backgroundColor: order.status.toLowerCase() == "completed"
-//                 ? Colors.green.shade100
-//                 : order.status.toLowerCase() == "inprogress"
-//                 ? Colors.orange.shade100
-//                 : Colors.red.shade100,
-//           ),
-//         ),
-//         DataCell(_actionMenu(order)),
-//       ],
-//     );
-//   }
-
-//   Widget _actionMenu(OrderModel order) {
-//     return PopupMenuButton<String>(
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//       onSelected: (value) async {
-//         if (value == "view") {
-//           Navigator.push(
-//             context,
-//             MaterialPageRoute(builder: (_) => OrderDetailsScreen(order: order)),
-//           );
-//         } else if (value == "edit") {
-//           // TODO: edit order
-//         } else if (value == "delete") {
-//           await _deleteOrder(order);
-//         }
-//       },
-//       itemBuilder: (_) => const [
-//         PopupMenuItem(
-//           value: "view",
-//           child: Row(
-//             children: [
-//               Icon(Icons.visibility, size: 18),
-//               SizedBox(width: 8),
-//               Text("View"),
-//             ],
-//           ),
-//         ),
-//         PopupMenuItem(
-//           value: "edit",
-//           child: Row(
-//             children: [
-//               Icon(Icons.edit, size: 18),
-//               SizedBox(width: 8),
-//               Text("Edit"),
-//             ],
-//           ),
-//         ),
-//         PopupMenuItem(
-//           value: "delete",
-//           child: Row(
-//             children: [
-//               Icon(Icons.delete, size: 18, color: Colors.red),
-//               SizedBox(width: 8),
-//               Text("Delete", style: TextStyle(color: Colors.red)),
-//             ],
-//           ),
-//         ),
-//       ],
-//       child: const Icon(Icons.more_vert),
-//     );
-//   }
-
-//   Future<void> _deleteOrder(OrderModel order) async {
-//     try {
-//       await supabase
-//           .from('department_orders')
-//           .delete()
-//           .eq('order_id', order.orderId);
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(SnackBar(content: Text("Order ${order.orderId} deleted")));
-//       notifyListeners();
-//     } catch (e) {
-//       debugPrint("Delete error: $e");
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(const SnackBar(content: Text("Failed to delete order")));
-//     }
-//   }
-
-//   @override
-//   bool get isRowCountApproximate => false;
-//   @override
-//   int get rowCount => orders.length;
-//   @override
-//   int get selectedRowCount => 0;
-// }
-import 'dart:ui';
-
 import 'package:fabri_sync/Model/orderModel.dart';
-import 'package:fabri_sync/view/newOrder/orderInput.dart';
+import 'package:fabri_sync/Model/order_summary_model.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
+import 'package:fabri_sync/utils/work_duration_formatter.dart';
 import 'package:fabri_sync/view/dashboards/tables/order_details.dart';
+import 'package:fabri_sync/view/newOrder/orderInput.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OrdersDataSource extends DataTableSource {
-  final List<OrderModel> orders;
-  final BuildContext context;
-  final Color blue;
-  final supabase = Supabase.instance.client;
+  OrdersDataSource(this.orders, this.context) {
+    debugPrint('[ExistingOrders] final table row count: ${orders.length}');
+  }
 
-  OrdersDataSource(this.orders, this.context, this.blue);
+  final List<OrderSummaryModel> orders;
+  final BuildContext context;
+  final supabase = Supabase.instance.client;
 
   @override
   DataRow? getRow(int index) {
     if (index >= orders.length) return null;
     final order = orders[index];
 
-    final createdAt = order.dateIn ?? order.createdAt;
-    final difference = DateTime.now().difference(createdAt);
-    final days = difference.inDays;
-    final hours = difference.inHours % 24;
-    final runningText = "${days}d ${hours}h";
-
-    // ✅ glass rows (transparent-ish)
     final rowColor = MaterialStateProperty.resolveWith<Color?>((states) {
       if (states.contains(MaterialState.selected)) {
-        return Colors.white.withOpacity(0.10);
+        return AppColors.surfaceMuted;
       }
-      return index.isEven
-          ? Colors.white.withOpacity(0.04)
-          : Colors.white.withOpacity(0.02);
+      return index.isEven ? Colors.white : AppColors.surfaceMuted;
     });
 
     return DataRow.byIndex(
       index: index,
       color: rowColor,
       cells: [
-        DataCell(
-          Text(
-            (index + 1).toString(),
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OrderDetailsScreen(order: order),
-                ),
-              );
-            },
-            child: Text(
-              order.orderId,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.92),
-                decoration: TextDecoration.underline,
-                decorationColor: Colors.white.withOpacity(0.35),
-              ),
-            ),
-          ),
-        ),
-        DataCell(
-          Text(
-            order.currentDepartment,
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          Text(
-            order.managerName ?? "-",
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          Text(
-            order.dateIn != null
-                ? DateFormat("dd MMM yyyy").format(order.dateIn!)
-                : "-",
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          Text(
-            order.timeIn != null
-                ? DateFormat("hh:mm a").format(order.timeIn!)
-                : "-",
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          Text(
-            runningText,
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          Text(
-            order.dateOut != null
-                ? DateFormat("dd MMM yyyy").format(order.dateOut!)
-                : "-",
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-        DataCell(
-          Text(
-            order.timeOut != null
-                ? DateFormat("hh:mm a").format(order.timeOut!)
-                : "-",
-            style: TextStyle(color: Colors.white.withOpacity(0.85)),
-          ),
-        ),
-
-        // ✅ glass chip status
-        DataCell(_statusChip(order.status)),
-
+        DataCell(_plainText((index + 1).toString())),
+        DataCell(_orderIdCell(order)),
+        DataCell(_productCell(order)),
+        DataCell(_plainText(order.quantity.toString())),
+        DataCell(_plainText(order.qualityGrade ?? '-')),
+        DataCell(_priorityChip(order.priority)),
+        DataCell(_plainText(_formatDate(order.requiredDeliveryDate))),
+        DataCell(_departmentChip(order.currentDepartment)),
+        DataCell(_progressCell(order)),
+        DataCell(_plainText(_formatHours(order))),
+        DataCell(_plainText(_formatCost(order))),
+        DataCell(_statusChip(order.orderStatus)),
         DataCell(_actionMenu(order)),
       ],
     );
   }
 
-  Widget _statusChip(String status) {
-    final s = status.toLowerCase();
-    Color tint;
-    if (s == "completed") {
-      tint = Colors.greenAccent;
-    } else if (s == "inprogress") {
-      tint = Colors.orangeAccent;
-    } else {
-      tint = Colors.redAccent;
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
-            border: Border.all(color: tint.withOpacity(0.45)),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Text(
-            status,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.90),
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-            ),
-          ),
+  Widget _orderIdCell(OrderSummaryModel order) {
+    return InkWell(
+      onTap: () => _openDetails(order),
+      child: Text(
+        order.orderId,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: AppColors.primaryAccent,
+          decoration: TextDecoration.underline,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
   }
 
-  Widget _actionMenu(OrderModel order) {
+  Widget _productCell(OrderSummaryModel order) {
+    final type = order.productType ?? 'N/A';
+    final category = order.productCategory ?? '-';
+    return SizedBox(
+      width: 170,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            type,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.primaryText,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            category,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.secondaryText,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _plainText(String text) {
+    return Text(
+      text,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(color: AppColors.primaryText),
+    );
+  }
+
+  Widget _priorityChip(String? priority) {
+    final label = _displayText(priority);
+    final isRush = label.toLowerCase() == 'rush';
+    final color = isRush ? AppColors.accentOrange : AppColors.accentGreen;
+    return _chip(label, color);
+  }
+
+  Widget _statusChip(String? status) {
+    final label = _statusLabel(status);
+    final normalized = (status ?? '').toLowerCase();
+    Color color;
+    if (normalized == 'completed') {
+      color = AppColors.accentGreen;
+    } else if (normalized == 'inprogress') {
+      color = AppColors.accentOrange;
+    } else if (normalized == 'pending') {
+      color = AppColors.accentBlue;
+    } else {
+      color = AppColors.accentPink;
+    }
+    return _chip(label, color);
+  }
+
+  Widget _departmentChip(String? department) {
+    final label = _departmentLabel(department);
+    if (label == '-') return _plainText('-');
+    return _chip(label, AppColors.primaryAccent);
+  }
+
+  Widget _chip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.14),
+        border: Border.all(color: color.withOpacity(0.24)),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  Widget _progressCell(OrderSummaryModel order) {
+    if (order.totalDepartments <= 0) return _plainText('-');
+    final progress = (order.progressPercent / 100).clamp(0.0, 1.0).toDouble();
+    return SizedBox(
+      width: 112,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${order.completedDepartments}/${order.totalDepartments}',
+            style: const TextStyle(
+              color: AppColors.primaryText,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: AppColors.surfaceMuted,
+              color: AppColors.primaryAccent,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionMenu(OrderSummaryModel order) {
     return PopupMenuButton<String>(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: const Color(0xFF0F1B33),
+      color: AppColors.surface,
       onSelected: (value) async {
-        if (value == "view") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => OrderDetailsScreen(order: order)),
-          );
-        } else if (value == "edit") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>
-                  OrderInputScreen(existingOrder: order, isEditing: true),
-            ),
-          );
-        } else if (value == "delete") {
+        if (value == 'view') {
+          await _openDetails(order);
+        } else if (value == 'edit') {
+          await _openEdit(order);
+        } else if (value == 'delete') {
           await _deleteOrder(order);
         }
       },
       itemBuilder: (_) => const [
         PopupMenuItem(
-          value: "view",
+          value: 'view',
           child: Row(
             children: [
-              Icon(Icons.visibility, size: 18, color: Colors.white),
+              Icon(Icons.visibility, size: 18, color: AppColors.primaryText),
               SizedBox(width: 8),
-              Text("View", style: TextStyle(color: Colors.white)),
+              Text('View', style: TextStyle(color: AppColors.primaryText)),
             ],
           ),
         ),
         PopupMenuItem(
-          value: "edit",
+          value: 'edit',
           child: Row(
             children: [
-              Icon(Icons.edit, size: 18, color: Colors.white),
+              Icon(Icons.edit, size: 18, color: AppColors.primaryText),
               SizedBox(width: 8),
-              Text("Edit", style: TextStyle(color: Colors.white)),
+              Text('Edit', style: TextStyle(color: AppColors.primaryText)),
             ],
           ),
         ),
         PopupMenuItem(
-          value: "delete",
+          value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete, size: 18, color: Colors.redAccent),
+              Icon(Icons.delete, size: 18, color: AppColors.error),
               SizedBox(width: 8),
-              Text("Delete", style: TextStyle(color: Colors.redAccent)),
+              Text('Delete', style: TextStyle(color: AppColors.error)),
             ],
           ),
         ),
       ],
-      child: Icon(Icons.more_vert, color: Colors.white.withOpacity(0.85)),
+      child: const Icon(Icons.more_vert, color: AppColors.primaryText),
     );
   }
 
-  Future<void> _deleteOrder(OrderModel order) async {
+  Future<void> _openDetails(OrderSummaryModel order) async {
+    final fullOrder = await _fetchFullOrder(order.orderId);
+    if (fullOrder == null) return;
+    if (!context.mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => OrderDetailsScreen(order: fullOrder)),
+    );
+  }
+
+  Future<void> _openEdit(OrderSummaryModel order) async {
+    final fullOrder = await _fetchFullOrder(order.orderId);
+    if (fullOrder == null) return;
+    if (!context.mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OrderInputScreen(
+          existingOrder: fullOrder,
+          isEditing: true,
+          isDraft: fullOrder.status.toLowerCase() == 'draft',
+        ),
+      ),
+    );
+  }
+
+  Future<OrderModel?> _fetchFullOrder(String orderId) async {
+    try {
+      final row = await supabase
+          .from('ordersmain')
+          .select()
+          .eq('order_id', orderId)
+          .maybeSingle();
+      if (row == null) {
+        _showError('Order $orderId not found');
+        return null;
+      }
+      return OrderModel.fromMap(Map<String, dynamic>.from(row));
+    } catch (e) {
+      _showError('Failed to load order');
+      return null;
+    }
+  }
+
+  Future<void> _deleteOrder(OrderSummaryModel order) async {
     try {
       await supabase
           .from('department_orders')
           .delete()
           .eq('order_id', order.orderId);
+      await supabase
+          .from('order_cost_breakdown')
+          .delete()
+          .eq('order_id', order.orderId);
       await supabase.from('ordersmain').delete().eq('order_id', order.orderId);
       orders.removeWhere((o) => o.orderId == order.orderId);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Order ${order.orderId} deleted")));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Order ${order.orderId} deleted')),
+        );
+      }
       notifyListeners();
     } catch (e) {
-      debugPrint("Delete error: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Failed to delete order")));
+      _showError('Failed to delete order');
     }
+  }
+
+  void _showError(String message) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
+  }
+
+  String _formatDate(DateTime? value) {
+    if (value == null) return '-';
+    return DateFormat('dd MMM yyyy').format(value);
+  }
+
+  String _formatHours(OrderSummaryModel order) {
+    final hours = order.estimatedProductionHours ?? order.estimatedTotalTime;
+    if (hours == null) return '-';
+    return formatWorkDuration(hours);
+  }
+
+  String _formatCost(OrderSummaryModel order) {
+    final cost = order.costEstimatedTotal ?? order.estimatedTotalCost;
+    if (cost == null) return '-';
+    return 'PKR ${NumberFormat.decimalPattern().format(cost.round())}';
+  }
+
+  String _departmentLabel(String? value) {
+    final dept = (value ?? '').trim().toUpperCase();
+    if (dept == 'QUALITY_CONTROL') return 'Quality Control';
+    if (dept == 'PACKAGING') return 'Packaging';
+    if (dept.isEmpty) return '-';
+    return dept[0] + dept.substring(1).toLowerCase();
+  }
+
+  String _statusLabel(String? value) {
+    final status = (value ?? '').trim().toLowerCase();
+    if (status.isEmpty) return '-';
+    if (status == 'inprogress') return 'In Progress';
+    return status[0].toUpperCase() + status.substring(1);
+  }
+
+  String _displayText(String? value) {
+    final text = (value ?? '').trim();
+    return text.isEmpty ? '-' : text;
   }
 
   @override
   bool get isRowCountApproximate => false;
+
   @override
   int get rowCount => orders.length;
+
   @override
   int get selectedRowCount => 0;
 }

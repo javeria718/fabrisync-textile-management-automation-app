@@ -38,13 +38,12 @@ class _LoginPageState extends State<LoginPage> {
         child: SafeArea(
           child: Stack(
             children: [
-              // ✅ back button (modern overlay)
               Positioned(
                 left: 8,
                 top: 8,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new),
-                  color: Colors.white.withOpacity(0.9),
+                  color: AppColors.primaryText,
                   onPressed: () {
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
@@ -55,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
               ),
-              // ✅ center frosted card + responsive scrolling
               Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(vertical: 28),

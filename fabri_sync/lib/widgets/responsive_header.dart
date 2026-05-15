@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
 
 class ResponsiveTitleActionHeader extends StatelessWidget {
   final String title;
@@ -25,7 +26,7 @@ class ResponsiveTitleActionHeader extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.primaryText,
                 ),
               ),
               const SizedBox(height: 8),
@@ -43,7 +44,7 @@ class ResponsiveTitleActionHeader extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.primaryText,
                 ),
               ),
             ),

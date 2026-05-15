@@ -47,7 +47,7 @@ enum Department {
   stitching,
   threading,
   quality_control,
-  packing,
+  packaging,
   inspection,
 }
 

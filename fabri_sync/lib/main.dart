@@ -331,9 +331,13 @@
 import 'dart:async';
 import 'package:fabri_sync/onboarding/role_selection_screen.dart';
 import 'package:fabri_sync/onboarding/splash.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
+import 'package:fabri_sync/auth/login/login_page.dart';
 
 import 'package:fabri_sync/view/dashboards/admin.dart';
+import 'package:fabri_sync/view/dashboards/employee_head.dart';
 import 'package:fabri_sync/view/dashboards/manager.dart';
+import 'package:fabri_sync/services/auth_navigation_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -396,7 +400,7 @@ class _FabriSyncAppState extends State<FabriSyncApp> {
       //   textTheme: textTheme,
       //   primaryTextTheme: textTheme,
       // ),
-      theme: ThemeData(useMaterial3: true, fontFamily: 'Poppins'),
+      theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       title: "FabriSync",
 
@@ -407,15 +411,27 @@ class _FabriSyncAppState extends State<FabriSyncApp> {
         '/': (_) => const SplashScreen(),
 
         '/role_selection': (_) => const SelectRoleScreen(),
+        AuthNavigationService.adminLoginRoute: (_) =>
+            const LoginPage(expectedRole: 'admin'),
+        AuthNavigationService.managerLoginRoute: (_) =>
+            const LoginPage(expectedRole: 'manager'),
+        AuthNavigationService.employeeHeadLoginRoute: (_) =>
+            const LoginPage(expectedRole: 'employee_head'),
 
         // ✅ Role Guarded Screens
-        '/admin_dashboard': (_) => const RoleGuard(
+        AuthNavigationService.adminDashboardRoute: (_) => const RoleGuard(
           requiredRole: 'admin',
           child: AdminDashboardScreen(),
         ),
 
-        '/manager_panel': (_) =>
+        AuthNavigationService.managerDashboardRoute: (_) =>
             const RoleGuard(requiredRole: 'manager', child: ManagerPanel()),
+
+        AuthNavigationService.employeeHeadDashboardRoute: (_) =>
+            const RoleGuard(
+              requiredRole: 'employee_head',
+              child: EmployeeHeadPanel(),
+            ),
       },
     );
   }
@@ -423,7 +439,7 @@ class _FabriSyncAppState extends State<FabriSyncApp> {
 
 /// ✅ ROLE GUARD WIDGET (prevents wrong dashboard access)
 class RoleGuard extends StatefulWidget {
-  final String requiredRole; // 'admin' or 'manager'
+  final String requiredRole; // 'admin', 'manager', or 'employee_head'
   final Widget child;
 
   const RoleGuard({super.key, required this.requiredRole, required this.child});
@@ -477,7 +493,7 @@ class _RoleGuardState extends State<RoleGuard> {
       }
 
       // ✅ Manager must have department
-      if (role == 'manager') {
+      if (role == 'manager' || role == 'employee_head') {
         final dept = (profile['department'] ?? '').toString().trim();
         if (dept.isEmpty) {
           _redirectToRoleSelection();
@@ -500,7 +516,7 @@ class _RoleGuardState extends State<RoleGuard> {
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        '/role_selection',
+        AuthNavigationService.roleSelectionRoute,
         (route) => false,
       );
     });

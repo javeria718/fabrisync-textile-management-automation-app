@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
 
 class WhiteButton extends StatelessWidget {
   final String label;
@@ -24,7 +25,7 @@ class WhiteButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
-          foregroundColor: const Color(0xff004AAD),
+          foregroundColor: AppColors.primaryAccent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
@@ -93,7 +94,10 @@ Widget dropdownBox({
         ),
       ),
       const SizedBox(height: 4),
-      Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      Text(
+        label,
+        style: const TextStyle(color: AppColors.secondaryText, fontSize: 12),
+      ),
     ],
   );
 }

@@ -10,24 +10,28 @@ Widget primaryButton({
 }) {
   return Center(
     child: SizedBox(
-      width: 240, // ✅ image-like fixed width
-      height: 44, // ✅ compact height like pic
+      width: 240,
+      height: 44,
       child: ElevatedButton(
         onPressed: loading ? null : onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white, // ❌ unchanged
-          elevation: 1.5, // ✅ very subtle shadow
-          shadowColor: Colors.black26,
+          backgroundColor: AppColors.primaryAccent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shadowColor: Colors.transparent,
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // ✅ box-type corners
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: loading
             ? const SizedBox(
                 height: 18,
                 width: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -35,15 +39,15 @@ Widget primaryButton({
                   if (showTick) ...[
                     const Icon(
                       Icons.check,
-                      color: AppColors.customBlueColor,
+                      color: Colors.white,
                       size: 18,
                     ),
                     const SizedBox(width: 6),
                   ],
                   Text(
                     text,
-                    style: TextStyle(
-                      color: Colors.blueGrey.shade900,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),

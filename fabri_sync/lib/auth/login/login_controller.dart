@@ -1,11 +1,12 @@
 import 'package:fabri_sync/Model/userModel.dart';
+import 'package:fabri_sync/services/auth_navigation_service.dart';
 import 'package:fabri_sync/singleton/singleton.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginController {
-  final String expectedRole; // ✅ 'admin' or 'manager'
+  final String expectedRole; // ✅ 'admin', 'manager', or 'employee_head'
   LoginController({required this.expectedRole});
 
   final TextEditingController emailController = TextEditingController();
@@ -30,6 +31,15 @@ class LoginController {
   ) async {
     try {
       isLoading = true;
+
+      final expected = expectedRole.toLowerCase().trim();
+      if (expected.isEmpty) {
+        showError(
+          context,
+          'Login route is missing an expected role. Please select your role first.',
+        );
+        return;
+      }
 
       final AuthResponse response = await supabase.auth.signInWithPassword(
         email: email,
@@ -60,10 +70,10 @@ class LoginController {
       }
 
       final userModel = UserModel.fromJson(profile);
-      final profileRole = (userModel.role).toLowerCase();
+      final profileRole = userModel.role.toLowerCase().trim();
 
       // ✅ STRICT ROLE MATCH
-      if (profileRole != expectedRole.toLowerCase()) {
+      if (profileRole != expected) {
         await supabase.auth.signOut();
         if (!context.mounted) return;
         showError(
@@ -77,12 +87,31 @@ class LoginController {
       await saveEmailLocally(email);
 
       // ✅ role-based navigation
-      if (profileRole == 'admin') {
-        if (!context.mounted) return;
-        Navigator.pushReplacementNamed(context, '/admin_dashboard');
-      } else {
-        if (!context.mounted) return;
-        Navigator.pushReplacementNamed(context, '/manager_panel');
+      if (!context.mounted) return;
+
+      switch (profileRole) {
+        case 'admin':
+          Navigator.pushReplacementNamed(
+            context,
+            AuthNavigationService.adminDashboardRoute,
+          );
+          break;
+        case 'manager':
+          Navigator.pushReplacementNamed(
+            context,
+            AuthNavigationService.managerDashboardRoute,
+          );
+          break;
+        case 'employee_head':
+          Navigator.pushReplacementNamed(
+            context,
+            AuthNavigationService.employeeHeadDashboardRoute,
+          );
+          break;
+        default:
+          await supabase.auth.signOut();
+          if (!context.mounted) return;
+          showError(context, "Unsupported role: $profileRole");
       }
     } on AuthException catch (e) {
       final msg = e.message.toLowerCase();
@@ -118,6 +147,7 @@ class LoginController {
 
     login(context, email, password);
   }
+
   Future<void> saveEmailLocally(String email) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -128,5 +158,4 @@ class LoginController {
       await prefs.setStringList('login_emails', existingEmails);
     }
   }
-
 }

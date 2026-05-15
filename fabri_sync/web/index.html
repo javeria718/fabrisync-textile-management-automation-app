@@ -41,6 +41,11 @@
 
 </head>
 <body>
+  <script>
+    // Force Flutter Web to use the HTML renderer in debug mode.
+    // This avoids CanvasKit network fetch failures like gstatic/canvaskit.js errors.
+    window.flutterWebRenderer = 'html';
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

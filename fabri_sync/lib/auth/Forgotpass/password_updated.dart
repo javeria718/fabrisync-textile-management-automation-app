@@ -31,31 +31,31 @@ class PasswordUpdatedScreen extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.green.withOpacity(0.15),
+                          color: AppColors.accentGreen.withOpacity(0.15),
                         ),
                         child: const Icon(
                           Icons.verified,
                           size: 34,
-                          color: Colors.green,
+                          color: AppColors.accentGreen,
                         ),
                       ),
                       const SizedBox(height: 14),
-                      Text(
+                      const Text(
                         "Password updated!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white.withOpacity(0.95),
+                          color: AppColors.primaryText,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      Text(
+                      const Text(
                         "Your account is secure. You can now sign in\nwith your new password and start exploring.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withOpacity(0.70),
+                          color: AppColors.secondaryText,
                           fontWeight: FontWeight.w600,
                           height: 1.25,
                         ),
@@ -67,11 +67,7 @@ class PasswordUpdatedScreen extends StatelessWidget {
                           width: double.infinity,
                           label: "Back to Sign In",
                           onPressed: () {
-                            // App ke start / login screen tak wapas
-                            Navigator.popUntil(
-                              context,
-                              (route) => route.isFirst,
-                            );
+                            Navigator.popUntil(context, (route) => route.isFirst);
                           },
                         ),
                       ),

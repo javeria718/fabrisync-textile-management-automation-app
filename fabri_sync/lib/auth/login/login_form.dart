@@ -1,11 +1,12 @@
-import 'package:fabri_sync/utils/customcolors.dart';
-import 'package:flutter/material.dart';
 import 'package:fabri_sync/auth/Forgotpass/screen1.dart';
 import 'package:fabri_sync/auth/signup/signup_page.dart';
-import 'login_controller.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/widgets/custombutton.dart';
 import 'package:fabri_sync/widgets/textfields.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'login_controller.dart';
 
 class LoginForm extends StatefulWidget {
   final String expectedRole;
@@ -45,6 +46,19 @@ class _LoginFormState extends State<LoginForm> {
     return prefs.getStringList('login_emails') ?? <String>[];
   }
 
+  String get _roleTitle {
+    switch (widget.expectedRole.toLowerCase().trim()) {
+      case 'admin':
+        return 'Admin Login';
+      case 'manager':
+        return 'Manager Login';
+      case 'employee_head':
+        return 'Employee Head Login';
+      default:
+        return 'Login';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -54,51 +68,38 @@ class _LoginFormState extends State<LoginForm> {
         return SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isWebWide ? 0 : 4, // frosted card already has padding
+              horizontal: isWebWide ? 0 : 4,
               vertical: 4,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ✅ Main Title centered (design fix)
                 Text(
                   'FabriSync',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.titleStyleW,
-
-                  // style: TextStyle(
-                  //   fontSize: 30,
-                  //   fontWeight: FontWeight.w800,
-                  //   color: Colors.white.withOpacity(0.95),
-                  //   letterSpacing: 1,
-                  // ),
                 ),
-
                 const SizedBox(height: 12),
-
                 Text(
-                  'Welcome back',
+                  _roleTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white.withOpacity(0.95),
+                    color: AppColors.primaryText,
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(
+                const Text(
                   'Sign in to continue',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.70),
+                    color: AppColors.secondaryText,
                   ),
                 ),
-
                 const SizedBox(height: 22),
-
-                /// Email
                 FutureBuilder<List<String>>(
                   future: _getSavedEmails(),
                   builder: (context, snapshot) {
@@ -120,21 +121,22 @@ class _LoginFormState extends State<LoginForm> {
                       onSelected: (selection) {
                         widget.controller.emailController.text = selection;
                       },
-                      fieldViewBuilder: (
-                        context,
-                        textController,
-                        focusNode,
-                        onFieldSubmitted,
-                      ) {
-                        return CustomTextFormField(
-                          controller: textController,
-                          focusNode: focusNode,
-                          label: 'Email',
-                          icon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          frostedStyle: true,
-                        );
-                      },
+                      fieldViewBuilder:
+                          (
+                            context,
+                            textController,
+                            focusNode,
+                            onFieldSubmitted,
+                          ) {
+                            return CustomTextFormField(
+                              controller: textController,
+                              focusNode: focusNode,
+                              label: 'Email',
+                              icon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              frostedStyle: true,
+                            );
+                          },
                       optionsViewBuilder: (context, onSelected, options) {
                         return Align(
                           alignment: Alignment.topLeft,
@@ -142,24 +144,12 @@ class _LoginFormState extends State<LoginForm> {
                             color: Colors.transparent,
                             child: Container(
                               margin: const EdgeInsets.only(top: 6),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 6),
                               constraints: const BoxConstraints(
                                 maxHeight: 220,
                                 maxWidth: 420,
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.98),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 6),
-                                  ),
-                                ],
-                              ),
+                              decoration: AppDecorations.surface(radius: 12),
                               child: ListView.builder(
                                 padding: EdgeInsets.zero,
                                 shrinkWrap: true,
@@ -186,10 +176,7 @@ class _LoginFormState extends State<LoginForm> {
                     );
                   },
                 ),
-
                 const SizedBox(height: 14),
-
-                /// Password
                 CustomTextFormField(
                   controller: widget.controller.passwordController,
                   label: 'Password',
@@ -207,9 +194,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   frostedStyle: true,
                 ),
-
                 const SizedBox(height: 6),
-
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -224,21 +209,17 @@ class _LoginFormState extends State<LoginForm> {
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Forgot Password?',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.85),
                         decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
-                /// Button (full width)
                 SizedBox(
                   height: 46,
                   child: CustomButton(
@@ -251,29 +232,25 @@ class _LoginFormState extends State<LoginForm> {
                             width: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Color(
-                                0xFF2563EB,
-                              ), // looks good on white btn
+                              color: Colors.white,
                             ),
                           )
                         : null,
                   ),
                 ),
-
                 const SizedBox(height: 14),
-
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 6,
                   runSpacing: 4,
                   children: [
-                    Text(
+                    const Text(
                       "Don't have an account?",
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.75),
+                        color: AppColors.secondaryText,
                       ),
                     ),
                     TextButton(
@@ -281,9 +258,8 @@ class _LoginFormState extends State<LoginForm> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => SignUpPage(
-                              expectedRole: widget.controller.expectedRole,
-                            ),
+                            builder: (_) =>
+                                SignUpPage(expectedRole: widget.expectedRole),
                           ),
                         );
                       },
@@ -292,12 +268,11 @@ class _LoginFormState extends State<LoginForm> {
                         minimumSize: const Size(0, 36),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: Text(
+                      child: const Text(
                         "Sign Up",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white.withOpacity(0.92),
                           decoration: TextDecoration.underline,
                         ),
                       ),

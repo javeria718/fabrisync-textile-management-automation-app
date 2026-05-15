@@ -1,7 +1,7 @@
-import 'dart:ui';
-
 import 'package:fabri_sync/Model/datamodel.dart';
 import 'package:fabri_sync/Model/orderModel.dart';
+import 'package:fabri_sync/utils/customcolors.dart';
+import 'package:fabri_sync/utils/work_duration_formatter.dart';
 import 'package:fabri_sync/view/dashboards/estimated_time_allorders.dart';
 import 'package:fabri_sync/view/dashboards/tables/admin_table.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -13,11 +13,13 @@ class AdminDashboardAppBar extends StatelessWidget
     super.key,
     required this.onBack,
     required this.onCreateOrder,
+    required this.onOpenDraftOrders,
     required this.onToggleProfile,
   });
 
   final VoidCallback onBack;
   final VoidCallback onCreateOrder;
+  final VoidCallback onOpenDraftOrders;
   final VoidCallback onToggleProfile;
 
   @override
@@ -25,9 +27,13 @@ class AdminDashboardAppBar extends StatelessWidget
     return AppBar(
       elevation: 0,
       centerTitle: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: AppColors.primaryText,
+        ),
         onPressed: onBack,
       ),
       title: const Text(
@@ -35,29 +41,41 @@ class AdminDashboardAppBar extends StatelessWidget
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: AppColors.primaryText,
         ),
       ),
       flexibleSpace: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0F172A), Color(0xFF111827)],
-          ),
+          color: AppColors.surface,
+          border: Border(bottom: BorderSide(color: AppColors.border)),
         ),
       ),
       actions: [
         IconButton(
           tooltip: "Create New Order",
-          icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+          icon: const Icon(
+            Icons.add_circle_outline,
+            color: AppColors.primaryAccent,
+          ),
           onPressed: onCreateOrder,
+        ),
+        IconButton(
+          tooltip: "Draft Orders",
+          icon: const Icon(
+            Icons.drafts_outlined,
+            color: AppColors.primaryText,
+          ),
+          onPressed: onOpenDraftOrders,
         ),
         GestureDetector(
           onTap: onToggleProfile,
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Icon(Icons.account_circle, size: 32, color: Colors.white),
+            child: Icon(
+              Icons.account_circle,
+              size: 32,
+              color: AppColors.primaryText,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -68,7 +86,6 @@ class AdminDashboardAppBar extends StatelessWidget
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-// ------------------
 
 class NoGlowScrollBehavior extends ScrollBehavior {
   const NoGlowScrollBehavior();
@@ -82,21 +99,15 @@ class NoGlowScrollBehavior extends ScrollBehavior {
     return child;
   }
 }
-// ----------------------
 
-BoxDecoration glassCard() {
-  return BoxDecoration(
-    borderRadius: BorderRadius.circular(20),
-    color: Colors.white.withOpacity(0.05),
-    border: Border.all(color: Colors.white.withOpacity(0.12)),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.2),
-        blurRadius: 18,
-        offset: const Offset(0, 8),
-      ),
-    ],
-  );
+BoxDecoration glassCard() => AppDecorations.surface(radius: 20);
+
+String _deptLabel(String value) {
+  final dept = value.trim().toUpperCase();
+  if (dept == 'QUALITY_CONTROL') return 'Quality Control';
+  if (dept == 'PACKAGING') return 'Packaging';
+  if (dept.isEmpty) return '-';
+  return dept;
 }
 
 class GlassOverlayCard extends StatelessWidget {
@@ -107,28 +118,11 @@ class GlassOverlayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          width: width,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.07),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.12)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.28),
-                blurRadius: 18,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: child,
-        ),
-      ),
+    return Container(
+      width: width,
+      padding: const EdgeInsets.all(16),
+      decoration: AppDecorations.surface(radius: 16),
+      child: child,
     );
   }
 }
@@ -143,12 +137,20 @@ class ProfileRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.white),
+        Container(
+          width: 34,
+          height: 34,
+          decoration: AppDecorations.accentFill(
+            AppColors.accentBlue,
+            radius: 12,
+          ),
+          child: Icon(icon, size: 18, color: AppColors.accentBlue),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text.isEmpty ? "-" : text,
-            style: const TextStyle(fontSize: 15, color: Colors.white),
+            style: const TextStyle(fontSize: 15, color: AppColors.primaryText),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -156,7 +158,6 @@ class ProfileRow extends StatelessWidget {
     );
   }
 }
-// -----------------------------
 
 class KpiSection extends StatelessWidget {
   const KpiSection({
@@ -185,19 +186,19 @@ class KpiSection extends StatelessWidget {
         title: 'In Progress',
         value: inProgress.toString(),
         icon: Icons.autorenew_rounded,
-        color: Colors.orange,
+        color: AppColors.accentBlue,
       ),
       _kpiCard(
         title: 'Pending',
         value: pending.toString(),
         icon: Icons.warning_amber,
-        color: Colors.red,
+        color: AppColors.accentOrange,
       ),
       _kpiCard(
         title: 'Completed',
         value: completed.toString(),
         icon: Icons.check_circle_outline,
-        color: Colors.green,
+        color: AppColors.accentGreen,
       ),
     ];
 
@@ -234,7 +235,6 @@ class KpiSection extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, c) {
         final cardW = (c.maxWidth * 0.78).clamp(220.0, 320.0);
-
         return SizedBox(
           height: 140,
           child: ListView.separated(
@@ -257,38 +257,60 @@ class KpiSection extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, c) {
         final h = c.maxHeight;
-        final valueFont = h < 110 ? 22.0 : 28.0;
-        final titleFont = h < 110 ? 12.0 : 14.0;
-        final iconSize = h < 110 ? 26.0 : 30.0;
+        final isCompact = h <= 124;
+        final valueFont = isCompact ? 18.0 : (h < 110 ? 22.0 : 28.0);
+        final titleFont = isCompact ? 11.0 : (h < 110 ? 12.0 : 14.0);
+        final iconSize = isCompact ? 22.0 : (h < 110 ? 26.0 : 30.0);
+        final iconBox = isCompact ? 40.0 : 44.0;
+        final padding = isCompact ? 14.0 : 16.0;
+        final gap = isCompact ? 8.0 : 10.0;
 
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(padding),
           decoration: glassCard(),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: color, size: iconSize),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: valueFont,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    height: 1.0,
-                  ),
-                ),
+              Container(
+                width: iconBox,
+                height: iconBox,
+                decoration: AppDecorations.accentFill(color),
+                child: Icon(icon, color: color, size: iconSize),
               ),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: titleFont,
-                  color: Colors.white.withOpacity(0.7),
+              SizedBox(height: gap),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            fontSize: valueFont,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryText,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: titleFont,
+                          color: AppColors.secondaryText,
+                          height: 1.15,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -299,7 +321,6 @@ class KpiSection extends StatelessWidget {
   }
 }
 
-// ----------------------
 class DepartmentProgressSection extends StatelessWidget {
   const DepartmentProgressSection({
     super.key,
@@ -315,7 +336,11 @@ class DepartmentProgressSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeOrders = allOrders
-        .where((o) => o.status.toLowerCase() != "completed")
+        .where(
+          (o) =>
+              o.status.toLowerCase() != "completed" &&
+              o.status.toLowerCase() != "draft",
+        )
         .toList();
 
     final Map<String, int> countByDept = {};
@@ -346,12 +371,12 @@ class DepartmentProgressSection extends StatelessWidget {
                 SizedBox(
                   width: isMobile ? 92 : 140,
                   child: Text(
-                    dbDept,
+                    _deptLabel(dbDept),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: AppColors.primaryText,
                       letterSpacing: 0.6,
                     ),
                   ),
@@ -362,7 +387,7 @@ class DepartmentProgressSection extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 10,
-                      backgroundColor: Colors.white.withOpacity(0.15),
+                      backgroundColor: AppColors.surfaceMuted,
                       color: _progressColor(progress),
                     ),
                   ),
@@ -370,7 +395,7 @@ class DepartmentProgressSection extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   "$count",
-                  style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                  style: const TextStyle(color: AppColors.secondaryText),
                 ),
               ],
             ),
@@ -381,12 +406,18 @@ class DepartmentProgressSection extends StatelessWidget {
   }
 
   Color _progressColor(double value) {
-    if (value >= 0.8) return Colors.greenAccent;
-    if (value >= 0.4) return Colors.orangeAccent;
-    return Colors.redAccent;
+    if (value >= 0.8) return AppColors.accentGreen;
+    if (value >= 0.4) return AppColors.accentOrange;
+    return AppColors.accentPink;
   }
 
   String _deptDbName(Department dept) => dept.name.toUpperCase();
+
+  String _deptLabel(String value) {
+    if (value == 'QUALITY_CONTROL') return 'Quality Control';
+    if (value == 'PACKAGING') return 'Packaging';
+    return value;
+  }
 
   Widget _cardWrapper({String? title, required Widget child}) {
     return Container(
@@ -401,7 +432,7 @@ class DepartmentProgressSection extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppColors.primaryText,
               ),
             ),
             const SizedBox(height: 16),
@@ -413,31 +444,33 @@ class DepartmentProgressSection extends StatelessWidget {
   }
 }
 
-// --------------------------------
 class EstimatedTimeSection extends StatelessWidget {
   const EstimatedTimeSection({
     super.key,
-    required this.perUnitDeptHours,
+    required this.storedDeptHoursByOrder,
     required this.orders,
-    required this.formatToDaysHours,
     required this.glassCard,
   });
 
-  final Map<String, double> perUnitDeptHours;
+  final Map<String, Map<String, double>> storedDeptHoursByOrder;
   final List<OrderModel> orders;
-  final String Function(double) formatToDaysHours;
   final BoxDecoration Function() glassCard;
 
   @override
   Widget build(BuildContext context) {
-    final OrderModel? latestOrder = orders.isNotEmpty ? orders.first : null;
+    final nonDraftOrders = orders
+        .where((o) => o.status.toLowerCase() != 'draft')
+        .toList();
+    final OrderModel? latestOrder = nonDraftOrders.isNotEmpty
+        ? nonDraftOrders.first
+        : null;
 
     if (latestOrder == null) {
       return _cardWrapper(
         title: 'Estimated Remaining Time (By Department)',
         child: const Text(
           "No orders available",
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: AppColors.secondaryText),
         ),
       );
     }
@@ -447,22 +480,15 @@ class EstimatedTimeSection extends StatelessWidget {
       'STITCHING',
       'THREADING',
       'QUALITY_CONTROL',
-      'PACKING',
+      'PACKAGING',
       'INSPECTION',
     ];
 
-    String norm(String d) => d.trim().toUpperCase().replaceAll(' ', '_');
-
-    final normalizedPerUnit = <String, double>{};
-    perUnitDeptHours.forEach((dept, hrs) {
-      normalizedPerUnit[norm(dept)] = hrs;
-    });
-
-    final calculated = <String, double>{};
-    for (final dept in orderedDepts) {
-      final perUnit = normalizedPerUnit[dept] ?? 0.0;
-      calculated[dept] = perUnit * latestOrder.quantity;
-    }
+    final calculated = _storedDepartmentHoursForOrder(
+      latestOrder,
+      orderedDepts,
+    );
+    final hasEstimate = calculated.values.any((hrs) => hrs > 0);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -483,7 +509,7 @@ class EstimatedTimeSection extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.primaryText,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -495,23 +521,14 @@ class EstimatedTimeSection extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) => EstimatedTimeAllOrdersScreen(
-                                allOrders: orders,
-                                perUnitDeptHours: perUnitDeptHours,
-                                formatToDaysHours: formatToDaysHours,
+                                allOrders: nonDraftOrders,
+                                storedDeptHoursByOrder: storedDeptHoursByOrder,
                                 glassCard: glassCard(),
                               ),
                             ),
                           );
                         },
-                        child: const Text(
-                          'View All Orders',
-                          style: TextStyle(
-                            color: Colors.white,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.white,
-                            decorationThickness: 2,
-                          ),
-                        ),
+                        child: const Text('View All Orders'),
                       ),
                     ),
                   ],
@@ -527,7 +544,7 @@ class EstimatedTimeSection extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.primaryText,
                       ),
                     ),
                   ),
@@ -537,23 +554,14 @@ class EstimatedTimeSection extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => EstimatedTimeAllOrdersScreen(
-                            allOrders: orders,
-                            perUnitDeptHours: perUnitDeptHours,
-                            formatToDaysHours: formatToDaysHours,
+                            allOrders: nonDraftOrders,
+                            storedDeptHoursByOrder: storedDeptHoursByOrder,
                             glassCard: glassCard(),
                           ),
                         ),
                       );
                     },
-                    child: const Text(
-                      'View All Orders',
-                      style: TextStyle(
-                        color: Colors.white,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Colors.white,
-                        decorationThickness: 2,
-                      ),
-                    ),
+                    child: const Text('View All Orders'),
                   ),
                 ],
               );
@@ -562,38 +570,44 @@ class EstimatedTimeSection extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             "Order: ${latestOrder.orderId}  •  Qty: ${latestOrder.quantity}",
-            style: TextStyle(color: Colors.white.withOpacity(0.75)),
+            style: const TextStyle(color: AppColors.secondaryText),
           ),
           const SizedBox(height: 16),
-          Column(
-            children: orderedDepts.map((dept) {
-              final hrs = calculated[dept] ?? 0.0;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        dept,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.6,
+          if (!hasEstimate)
+            const Text(
+              'No stored estimate available',
+              style: TextStyle(color: AppColors.secondaryText),
+            )
+          else
+            Column(
+              children: orderedDepts.map((dept) {
+                final hrs = calculated[dept] ?? 0.0;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _deptLabel(dept),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.primaryText,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.6,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      formatToDaysHours(hrs),
-                      style: TextStyle(color: Colors.white.withOpacity(0.8)),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
+                      const SizedBox(width: 10),
+                      Text(
+                        formatWorkDuration(hrs),
+                        style: const TextStyle(color: AppColors.secondaryText),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );
@@ -612,7 +626,7 @@ class EstimatedTimeSection extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppColors.primaryText,
               ),
             ),
             const SizedBox(height: 16),
@@ -622,8 +636,32 @@ class EstimatedTimeSection extends StatelessWidget {
       ),
     );
   }
+
+  Map<String, double> _storedDepartmentHoursForOrder(
+    OrderModel order,
+    List<String> orderedDepts,
+  ) {
+    String norm(String d) => d.trim().toUpperCase().replaceAll(' ', '_');
+
+    final stored = <String, double>{};
+    order.estimatedDeptHours?.forEach((dept, hrs) {
+      stored[norm(dept)] = hrs;
+    });
+
+    if (stored.values.any((hrs) => hrs > 0)) {
+      return {for (final dept in orderedDepts) dept: stored[dept] ?? 0.0};
+    }
+
+    storedDeptHoursByOrder[order.orderId]?.forEach((dept, hrs) {
+      stored[norm(dept)] = hrs;
+    });
+
+    if (stored.values.any((hrs) => hrs > 0)) {
+      return {for (final dept in orderedDepts) dept: stored[dept] ?? 0.0};
+    }
+    return {};
+  }
 }
-// ----------------------------
 
 class QueueEfficiencySection extends StatelessWidget {
   const QueueEfficiencySection({
@@ -659,7 +697,10 @@ class QueueEfficiencySection extends StatelessWidget {
   }
 
   Widget _orderQueue(BuildContext context) {
-    final preview = allOrders.take(4).toList();
+    final nonDraftOrders = allOrders
+        .where((o) => o.status.toLowerCase() != 'draft')
+        .toList();
+    final preview = nonDraftOrders.take(4).toList();
 
     return _cardWrapper(
       child: Column(
@@ -674,7 +715,7 @@ class QueueEfficiencySection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppColors.primaryText,
                   ),
                 ),
               ),
@@ -682,26 +723,14 @@ class QueueEfficiencySection extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          TableScreen(department: Department.cutting),
-                    ),
+                    MaterialPageRoute(builder: (_) => const TableScreen()),
                   );
                 },
-                child: const Text(
-                  'View Full',
-                  style: TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Colors.white,
-                    decorationThickness: 2,
-                  ),
-                ),
+                child: const Text('View Full'),
               ),
             ],
           ),
           const SizedBox(height: 14),
-
           LayoutBuilder(
             builder: (context, c) {
               final narrow = c.maxWidth < 420;
@@ -709,31 +738,13 @@ class QueueEfficiencySection extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Order ID',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 12,
-                      ),
-                    ),
+                    _headerText('Order ID'),
                     const SizedBox(height: 6),
-                    Text(
-                      'Department',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 12,
-                      ),
-                    ),
+                    _headerText('Department'),
                     const SizedBox(height: 6),
-                    Text(
-                      'Status',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 12,
-                      ),
-                    ),
+                    _headerText('Status'),
                     const SizedBox(height: 8),
-                    const Divider(color: Colors.white24),
+                    const Divider(color: AppColors.divider),
                     ...preview.map(
                       (o) => Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -742,26 +753,28 @@ class QueueEfficiencySection extends StatelessWidget {
                           children: [
                             Text(
                               o.orderId,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(
+                                color: AppColors.primaryText,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              o.currentDepartment,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.75),
+                              _deptLabel(o.currentDepartment),
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               o.status,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.75),
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const Divider(color: Colors.white12),
+                            const Divider(color: AppColors.divider),
                           ],
                         ),
                       ),
@@ -774,37 +787,13 @@ class QueueEfficiencySection extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Order ID',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Department',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Status',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _headerText('Order ID')),
+                      Expanded(child: _headerText('Department')),
+                      Expanded(child: _headerText('Status')),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Divider(color: Colors.white24),
+                  const Divider(color: AppColors.divider),
                   ...preview.map(
                     (o) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -813,15 +802,17 @@ class QueueEfficiencySection extends StatelessWidget {
                           Expanded(
                             child: Text(
                               o.orderId,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(
+                                color: AppColors.primaryText,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Expanded(
                             child: Text(
-                              o.currentDepartment,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.75),
+                              _deptLabel(o.currentDepartment),
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -829,8 +820,8 @@ class QueueEfficiencySection extends StatelessWidget {
                           Expanded(
                             child: Text(
                               o.status,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.75),
+                              style: const TextStyle(
+                                color: AppColors.secondaryText,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -854,24 +845,26 @@ class QueueEfficiencySection extends StatelessWidget {
       'STITCHING',
       'THREADING',
       'QUALITY_CONTROL',
-      'PACKING',
+      'PACKAGING',
       'INSPECTION',
     ];
 
     final List<Color> deptColors = [
-      Colors.greenAccent,
-      Colors.blueAccent,
-      Colors.amberAccent,
-      Colors.redAccent,
-      Colors.purpleAccent,
-      Colors.cyanAccent,
+      AppColors.primaryAccent,
+      AppColors.accentBlue,
+      AppColors.accentGreen,
+      AppColors.accentOrange,
+      AppColors.accentYellow,
+      AppColors.accentPink,
     ];
 
     String norm(String d) => d.trim().toUpperCase().replaceAll(' ', '_');
 
     final Map<String, int> countByDept = {for (final d in orderedDepts) d: 0};
 
-    for (final o in allOrders) {
+    for (final o in allOrders.where(
+      (order) => order.status.toLowerCase() != 'draft',
+    )) {
       final key = norm(o.currentDepartment.toString());
       if (countByDept.containsKey(key)) {
         countByDept[key] = (countByDept[key] ?? 0) + 1;
@@ -930,11 +923,11 @@ class QueueEfficiencySection extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '$dept ($count)',
+                    '${_deptLabel(dept)} ($count)',
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                      color: AppColors.primaryText,
                     ),
                   ),
                 ],
@@ -943,6 +936,13 @@ class QueueEfficiencySection extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _headerText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: AppColors.secondaryText, fontSize: 12),
     );
   }
 
@@ -959,7 +959,7 @@ class QueueEfficiencySection extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppColors.primaryText,
               ),
             ),
             const SizedBox(height: 16),

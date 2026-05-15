@@ -1,3 +1,4 @@
+import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
@@ -19,14 +20,15 @@ class CustomButton extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(minWidth: width ?? 180),
       child: SizedBox(
-        height: 46, // ✅ thora taller = premium feel
+        height: 46,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white, // ✅ white background
-            elevation: 6,
-            shadowColor: Colors.black.withOpacity(0.25),
+            backgroundColor: AppColors.primaryAccent,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14), // ✅ modern radius
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
           onPressed: onPressed,
@@ -38,9 +40,7 @@ class CustomButton extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-
-                  // ✅ login gradient ke saath match karta classy color
-                  color: Color(0xFF2563EB), // blue-violet tone
+                  color: Colors.white,
                   letterSpacing: 0.4,
                 ),
               ),

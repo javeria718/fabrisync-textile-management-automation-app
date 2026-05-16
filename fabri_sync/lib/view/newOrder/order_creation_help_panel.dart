@@ -98,30 +98,55 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   }
 
   Widget _buildPanelAppBar(ProductHelpCatalog catalog) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    // Responsive font sizing
+    final titleFontSize = isMobile ? 16.0 : 20.0;
+    final subtitleFontSize = isMobile ? 11.0 : 13.0;
+    final appBarHeight = isMobile ? 100.0 : 110.0;
+
     return AppBar(
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
       automaticallyImplyLeading: false,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Text(
-            'Order Creation Guide',
-            style: TextStyle(
-              color: AppColors.primaryText,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+      toolbarHeight: appBarHeight,
+      title: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Order Creation Guide',
+              style: TextStyle(
+                color: AppColors.primaryText,
+                fontWeight: FontWeight.bold,
+                fontSize: titleFontSize,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Live configuration, formula transparency, and costing insight',
-            style: TextStyle(color: AppColors.secondaryText, fontSize: 13),
-          ),
-        ],
+            const SizedBox(height: 4),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: screenWidth - 100, // Reserve space for actions
+              ),
+              child: Text(
+                'Live configuration, formula transparency, and costing insight',
+                style: TextStyle(
+                  color: AppColors.secondaryText,
+                  fontSize: subtitleFontSize,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
         IconButton(
@@ -136,15 +161,18 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
           tooltip: 'Close',
         ),
       ],
-      bottom: TabBar(
-        isScrollable: true,
-        labelColor: AppColors.primaryText,
-        unselectedLabelColor: AppColors.secondaryText,
-        indicatorColor: AppColors.primaryAccent,
-        onTap: (index) => setState(() => _selectedTabIndex = index),
-        tabs: catalog.categories
-            .map((category) => Tab(text: category.category))
-            .toList(),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(48),
+        child: TabBar(
+          isScrollable: true,
+          labelColor: AppColors.primaryText,
+          unselectedLabelColor: AppColors.secondaryText,
+          indicatorColor: AppColors.primaryAccent,
+          onTap: (index) => setState(() => _selectedTabIndex = index),
+          tabs: catalog.categories
+              .map((category) => Tab(text: category.category))
+              .toList(),
+        ),
       ),
     );
   }
@@ -158,27 +186,42 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   }
 
   Widget _buildCategoryContent(ProductHelpCategoryData data) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    // Responsive padding
+    final horizontalPadding = isMobile ? 14.0 : 20.0;
+    final titleFontSize = isMobile ? 20.0 : 24.0;
+    final summaryFontSize = isMobile ? 12.0 : 14.0;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+      padding: EdgeInsets.fromLTRB(
+        horizontalPadding,
+        16,
+        horizontalPadding,
+        30,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             data.title,
-            style: const TextStyle(
-              fontSize: 24,
+            style: TextStyle(
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryText,
             ),
+            softWrap: true,
           ),
           const SizedBox(height: 10),
           Text(
             data.summary,
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: summaryFontSize,
               color: AppColors.primaryText,
               height: 1.5,
             ),
+            softWrap: true,
           ),
           const SizedBox(height: 24),
           _buildSectionHeader('Product Types', icon: Icons.category_outlined),

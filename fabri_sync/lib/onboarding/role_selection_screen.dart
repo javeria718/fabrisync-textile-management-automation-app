@@ -15,13 +15,6 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double cardWidth = screenWidth < 600
-        ? screenWidth * 0.85
-        : screenWidth < 900
-        ? screenWidth * 0.45
-        : screenWidth * 0.28;
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
@@ -42,63 +35,109 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
           },
         ),
         centerTitle: true,
-        title: const Text(
-          "SELECT YOUR ROLE",
-          style: TextStyle(
-            color: AppColors.primaryText,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.6,
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            "SELECT YOUR ROLE",
+            style: TextStyle(
+              color: AppColors.primaryText,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.6,
+            ),
           ),
         ),
       ),
       body: gradientOrderBackground(
-        child: Center(
-          child: Wrap(
-            spacing: 40,
-            runSpacing: 40,
-            alignment: WrapAlignment.center,
-            children: [
-              _roleCard(
-                context,
-                index: 0,
-                width: cardWidth,
-                icon: Icons.security,
-                title: "Admin",
-                subtitle: "Full access to manage the system",
-                accent: AppColors.primaryAccent,
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AuthNavigationService.adminLoginRoute,
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final isMobile = screenWidth < 640;
+              final isTablet = screenWidth >= 640 && screenWidth < 1024;
+              final horizontalPadding = isMobile ? 16.0 : 24.0;
+              final verticalPadding = isMobile ? 18.0 : 24.0;
+              final cardWidth = isMobile
+                  ? screenWidth - (horizontalPadding * 2)
+                  : isTablet
+                  ? (screenWidth / 2) - 40
+                  : 340.0;
+
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: verticalPadding,
                 ),
-              ),
-              _roleCard(
-                context,
-                index: 1,
-                width: cardWidth,
-                icon: Icons.work,
-                title: "Manager",
-                subtitle: "Manage department workflows",
-                accent: AppColors.accentBlue,
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AuthNavigationService.managerLoginRoute,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(height: isMobile ? 12 : 18),
+                        Text(
+                          'Choose the account role that matches your access level',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: isMobile ? 14 : 16,
+                            color: AppColors.secondaryText,
+                            height: 1.5,
+                          ),
+                        ),
+                        SizedBox(height: isMobile ? 18 : 28),
+                        Wrap(
+                          spacing: isMobile ? 16 : 32,
+                          runSpacing: isMobile ? 16 : 32,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            _roleCard(
+                              context,
+                              index: 0,
+                              width: cardWidth,
+                              icon: Icons.security,
+                              title: 'Admin',
+                              subtitle: 'Full access to manage the system',
+                              accent: AppColors.primaryAccent,
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                AuthNavigationService.adminLoginRoute,
+                              ),
+                            ),
+                            _roleCard(
+                              context,
+                              index: 1,
+                              width: cardWidth,
+                              icon: Icons.work,
+                              title: 'Manager',
+                              subtitle: 'Manage department workflows',
+                              accent: AppColors.accentBlue,
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                AuthNavigationService.managerLoginRoute,
+                              ),
+                            ),
+                            _roleCard(
+                              context,
+                              index: 2,
+                              width: cardWidth,
+                              icon: Icons.engineering,
+                              title: 'Employee Head',
+                              subtitle: 'Update department production progress',
+                              accent: AppColors.accentGreen,
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                AuthNavigationService.employeeHeadLoginRoute,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: isMobile ? 18 : 0),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              _roleCard(
-                context,
-                index: 2,
-                width: cardWidth,
-                icon: Icons.engineering,
-                title: "Employee Head",
-                subtitle: "Update department production progress",
-                accent: AppColors.accentGreen,
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AuthNavigationService.employeeHeadLoginRoute,
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),

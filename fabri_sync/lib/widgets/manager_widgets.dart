@@ -145,10 +145,30 @@ class ManagerKpiSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cards = [
-      _kpiCard("Total", total.toString(), Icons.inventory_2_outlined, AppColors.accentBlue),
-      _kpiCard("In Progress", inProgress.toString(), Icons.autorenew_rounded, AppColors.primaryAccent),
-      _kpiCard("Completed", completed.toString(), Icons.check_circle_outline, AppColors.accentGreen),
-      _kpiCard("Late", late.toString(), Icons.warning_amber_rounded, AppColors.accentOrange),
+      _kpiCard(
+        "Total",
+        total.toString(),
+        Icons.inventory_2_outlined,
+        AppColors.accentBlue,
+      ),
+      _kpiCard(
+        "In Progress",
+        inProgress.toString(),
+        Icons.autorenew_rounded,
+        AppColors.primaryAccent,
+      ),
+      _kpiCard(
+        "Completed",
+        completed.toString(),
+        Icons.check_circle_outline,
+        AppColors.accentGreen,
+      ),
+      _kpiCard(
+        "Late",
+        late.toString(),
+        Icons.warning_amber_rounded,
+        AppColors.accentOrange,
+      ),
     ];
 
     if (isDesktop) {
@@ -157,76 +177,98 @@ class ManagerKpiSection extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 20,
+        mainAxisSpacing: 16,
         childAspectRatio: 2.35,
         children: cards,
       );
     }
 
-    return SizedBox(
-      height: 140,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: cards.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (_, i) => SizedBox(width: 220, child: cards[i]),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardW = (constraints.maxWidth * 0.75).clamp(160.0, 240.0);
+        return SizedBox(
+          height: 130,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: cards.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (_, i) => SizedBox(width: cardW, child: cards[i]),
+          ),
+        );
+      },
     );
   }
 
   Widget _kpiCard(String title, String value, IconData icon, Color color) {
     return LayoutBuilder(
-      builder: (_, c) {
-        final h = c.maxHeight;
-        final pad = h < 105 ? 12.0 : 16.0;
-        final iconSize = h < 105 ? 24.0 : 28.0;
-        final valueSize = h < 105 ? 22.0 : 26.0;
-        final titleSize = h < 105 ? 11.5 : 13.0;
-        final gap = h < 105 ? 2.0 : 4.0;
+      builder: (context, constraints) {
+        final maxHeight = constraints.maxHeight;
+        final maxWidth = constraints.maxWidth;
+
+        // Responsive sizing
+        final isCompact = maxHeight <= 110;
+        final isVeryCompact = maxHeight <= 95;
+
+        // Icon sizing
+        final iconSize = isVeryCompact ? 20.0 : (isCompact ? 22.0 : 26.0);
+        final pad = isVeryCompact ? 10.0 : (isCompact ? 12.0 : 14.0);
+
+        // Font sizing (conservative to prevent overflow)
+        final valueSize = isVeryCompact ? 16.0 : (isCompact ? 18.0 : 22.0);
+        final titleSize = isVeryCompact ? 10.0 : (isCompact ? 11.0 : 12.0);
+        final gap = isVeryCompact ? 2.0 : 3.0;
 
         return Glass(
           radius: 20,
           padding: EdgeInsets.all(pad),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: [
+              // Icon
               Container(
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: AppDecorations.accentFill(color),
                 child: Icon(icon, color: color, size: iconSize),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: valueSize,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryText,
-                        height: 1.0,
-                      ),
+              // Spacer to push content down
+              Expanded(child: SizedBox.expand()),
+              // Value and title at bottom
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth - (pad * 2)),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: valueSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryText,
+                      height: 1.0,
                     ),
                   ),
-                  SizedBox(height: gap),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: titleSize,
-                        color: AppColors.secondaryText,
-                        height: 1.0,
-                      ),
+                ),
+              ),
+              SizedBox(height: gap),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth - (pad * 2)),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: titleSize,
+                      color: AppColors.secondaryText,
+                      height: 1.0,
                     ),
                   ),
-                ],
+                ),
               ),
             ],
           ),
@@ -358,7 +400,8 @@ class ActiveOrdersList extends StatelessWidget {
   final int Function(Map<String, dynamic>) remainingSeconds;
   final bool Function(Map<String, dynamic>) isAlert;
   final String Function(int) formatCountdown;
-  final DepartmentProgressSummary Function(Map<String, dynamic>) summaryForOrder;
+  final DepartmentProgressSummary Function(Map<String, dynamic>)
+  summaryForOrder;
   final Map<String, dynamic>? Function(Map<String, dynamic>) latestLogForOrder;
   final void Function(Map<String, dynamic>) onViewDetails;
   final String? selectedOrderId;
@@ -405,7 +448,8 @@ class ActiveOrdersList extends StatelessWidget {
       itemBuilder: (_, index) {
         final order = visibleOrders[index];
         final orderId = (order['order_id'] ?? '').toString();
-        final expectedHours = (order['expected_hours'] as num?)?.toDouble() ?? 0;
+        final expectedHours =
+            (order['expected_hours'] as num?)?.toDouble() ?? 0;
         final remainingSec = remainingSeconds(order);
         final countdown = formatCountdown(remainingSec);
         final danger = remainingSec <= 0;
@@ -418,10 +462,7 @@ class ActiveOrdersList extends StatelessWidget {
         final completed = summary.completedQuantity;
         final pending = quantity - completed < 0 ? 0 : quantity - completed;
         final progress = quantity <= 0 ? 0.0 : completed / quantity;
-        final product = [
-          order['product_type'],
-          order['product_category'],
-        ]
+        final product = [order['product_type'], order['product_category']]
             .map((value) => (value ?? '').toString().trim())
             .where((value) => value.isNotEmpty)
             .join(' | ');
@@ -489,7 +530,10 @@ class ActiveOrdersList extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.monitor_heart_outlined, color: Colors.white),
+                child: const Icon(
+                  Icons.monitor_heart_outlined,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1031,11 +1075,7 @@ Widget _readonlyChip(String label, Color color) {
     decoration: AppDecorations.accentFill(color, radius: 999),
     child: Text(
       label,
-      style: TextStyle(
-        color: color,
-        fontSize: 12,
-        fontWeight: FontWeight.w800,
-      ),
+      style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w800),
     ),
   );
 }
@@ -1057,7 +1097,9 @@ String _eventLabel(String value) {
 
 String _formatDateTime(dynamic value) {
   if (value == null) return '-';
-  final parsed = value is DateTime ? value : DateTime.tryParse(value.toString());
+  final parsed = value is DateTime
+      ? value
+      : DateTime.tryParse(value.toString());
   if (parsed == null) return '-';
   final local = parsed.toLocal();
   final date =

@@ -11,7 +11,6 @@ class WelcomeScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-
       body: gradientOrderBackground(
         child: Center(
           child: SingleChildScrollView(

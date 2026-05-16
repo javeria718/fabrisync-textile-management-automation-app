@@ -78,14 +78,14 @@ class _LoginFormState extends State<LoginForm> {
                 Text(
                   'FabriSync',
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.titleStyleW,
+                  style: AppTextStyles.gradientTitleStyle,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   _roleTitle,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryText,
                   ),

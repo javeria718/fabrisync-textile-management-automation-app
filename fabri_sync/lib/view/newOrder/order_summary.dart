@@ -232,29 +232,47 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           context: context,
           barrierDismissible: true,
           builder: (context) {
-            final width = MediaQuery.of(context).size.width;
+            final screenSize = MediaQuery.of(context).size;
+            final width = screenSize.width;
+            final height = screenSize.height;
+            final isMobile = width < 600;
+
+            // Responsive sizing
+            final dialogWidth = width >= 700 ? 620.0 : width - 40;
+            final maxDialogHeight =
+                height * 0.85; // Leave 15% margin for system UI
+            final contentPadding = isMobile ? 18.0 : 24.0;
+            final spaceBetweenSections = isMobile ? 14.0 : 18.0;
+
+            // Responsive font sizes
+            final headingFontSize = isMobile ? 16.0 : 20.0;
+            final descriptionFontSize = isMobile ? 13.0 : 15.0;
+            final infoFontSize = isMobile ? 12.0 : 13.0;
+
             return Dialog(
               backgroundColor: Colors.transparent,
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: contentPadding,
+                vertical: contentPadding,
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: width >= 700 ? 620 : width - 40,
+                  maxWidth: dialogWidth,
+                  maxHeight: maxDialogHeight,
                 ),
                 child: Container(
                   decoration: AppDecorations.surface(radius: 22),
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(contentPadding),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Header with icon and title
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: AppColors.accentYellow.withAlpha(36),
                               shape: BoxShape.circle,
@@ -262,100 +280,181 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             child: const Icon(
                               Icons.warning_amber_rounded,
                               color: AppColors.accentYellow,
-                              size: 28,
+                              size: 24,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'Confirm Order Creation',
-                              style: const TextStyle(
-                                fontSize: 20,
+                              style: TextStyle(
+                                fontSize: headingFontSize,
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.primaryText,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 18),
-                      const Text(
-                        'Please review all entered order details carefully before proceeding. Once the order is created, major specifications and production planning data may no longer be editable.',
-                        style: TextStyle(
-                          fontSize: 15,
-                          height: 1.6,
-                          color: AppColors.primaryText,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.accentYellow.withAlpha(31),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppColors.accentYellow.withAlpha(56),
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(14),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Icon(
-                              Icons.info_outline_rounded,
-                              color: AppColors.accentYellow,
-                              size: 20,
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'You will not be able to make significant changes after order creation.',
+                      SizedBox(height: spaceBetweenSections),
+
+                      // Scrollable content
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Description text
+                              Text(
+                                'Please review all entered order details carefully before proceeding. Once the order is created, major specifications and production planning data may no longer be editable.',
                                 style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.primaryText,
+                                  fontSize: descriptionFontSize,
                                   height: 1.5,
+                                  color: AppColors.primaryText,
                                 ),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: spaceBetweenSections + 2),
+
+                              // Info box
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentYellow.withAlpha(31),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: AppColors.accentYellow.withAlpha(56),
+                                  ),
+                                ),
+                                padding: EdgeInsets.all(isMobile ? 10.0 : 14.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline_rounded,
+                                      color: AppColors.accentYellow,
+                                      size: isMobile ? 18 : 20,
+                                    ),
+                                    SizedBox(width: isMobile ? 8 : 10),
+                                    Expanded(
+                                      child: Text(
+                                        'You will not be able to make significant changes after order creation.',
+                                        style: TextStyle(
+                                          fontSize: infoFontSize,
+                                          color: AppColors.primaryText,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.primaryText,
-                                backgroundColor: AppColors.surface,
-                                side: const BorderSide(color: AppColors.border),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                      SizedBox(height: spaceBetweenSections),
+
+                      // Responsive buttons
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final buttonAreaWidth = constraints.maxWidth;
+                          // Stack buttons vertically if width is too small
+                          final useVerticalLayout = buttonAreaWidth < 320;
+
+                          if (useVerticalLayout) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.primaryText,
+                                    backgroundColor: AppColors.surface,
+                                    side: const BorderSide(
+                                      color: AppColors.border,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    minimumSize: const Size.fromHeight(48),
+                                  ),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: const Text(
+                                    'Cancel',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
                                 ),
-                                minimumSize: const Size.fromHeight(52),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryAccent,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryAccent,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    minimumSize: const Size.fromHeight(48),
+                                  ),
+                                  onPressed: controller.isSubmitting
+                                      ? null
+                                      : () => Navigator.of(context).pop(true),
+                                  child: const Text(
+                                    'Confirm & Create Order',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
                                 ),
-                                minimumSize: const Size.fromHeight(52),
-                              ),
-                              onPressed: controller.isSubmitting
-                                  ? null
-                                  : () => Navigator.of(context).pop(true),
-                              child: const Text('Confirm & Create Order'),
-                            ),
-                          ),
-                        ],
+                              ],
+                            );
+                          } else {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.primaryText,
+                                      backgroundColor: AppColors.surface,
+                                      side: const BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      minimumSize: const Size.fromHeight(48),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: const Text(
+                                      'Cancel',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primaryAccent,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      minimumSize: const Size.fromHeight(48),
+                                    ),
+                                    onPressed: controller.isSubmitting
+                                        ? null
+                                        : () => Navigator.of(context).pop(true),
+                                    child: const Text(
+                                      'Confirm & Create Order',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),

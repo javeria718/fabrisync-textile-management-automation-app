@@ -24,6 +24,12 @@ class AdminDashboardAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    // Responsive font sizing
+    final titleFontSize = isMobile ? 16.0 : 20.0;
+
     return AppBar(
       elevation: 0,
       centerTitle: true,
@@ -36,13 +42,15 @@ class AdminDashboardAppBar extends StatelessWidget
         ),
         onPressed: onBack,
       ),
-      title: const Text(
+      title: Text(
         'Admin Dashboard',
         style: TextStyle(
-          fontSize: 20,
+          fontSize: titleFontSize,
           fontWeight: FontWeight.w600,
           color: AppColors.primaryText,
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
       flexibleSpace: Container(
         decoration: const BoxDecoration(
@@ -61,10 +69,7 @@ class AdminDashboardAppBar extends StatelessWidget
         ),
         IconButton(
           tooltip: "Draft Orders",
-          icon: const Icon(
-            Icons.drafts_outlined,
-            color: AppColors.primaryText,
-          ),
+          icon: const Icon(Icons.drafts_outlined, color: AppColors.primaryText),
           onPressed: onOpenDraftOrders,
         ),
         GestureDetector(
@@ -211,7 +216,7 @@ class KpiSection extends StatelessWidget {
           crossAxisCount: 3,
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
-          mainAxisExtent: 120,
+          mainAxisExtent: 140,
         ),
         itemBuilder: (_, i) => cards[i],
       );
@@ -226,22 +231,25 @@ class KpiSection extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          mainAxisExtent: 120,
+          mainAxisExtent: 130,
         ),
         itemBuilder: (_, i) => cards[i],
       );
     }
 
+    // Mobile: Responsive horizontal scroll layout
     return LayoutBuilder(
       builder: (context, c) {
-        final cardW = (c.maxWidth * 0.78).clamp(220.0, 320.0);
+        final cardW = (c.maxWidth * 0.78).clamp(180.0, 280.0);
+        final cardH = 120.0;
         return SizedBox(
-          height: 140,
+          height: cardH + 16,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: cards.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
-            itemBuilder: (_, i) => SizedBox(width: cardW, child: cards[i]),
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (_, i) =>
+                SizedBox(width: cardW, height: cardH, child: cards[i]),
           ),
         );
       },
@@ -255,29 +263,43 @@ class KpiSection extends StatelessWidget {
     required Color color,
   }) {
     return LayoutBuilder(
-      builder: (context, c) {
-        final h = c.maxHeight;
-        final isCompact = h <= 124;
-        final valueFont = isCompact ? 18.0 : (h < 110 ? 22.0 : 28.0);
-        final titleFont = isCompact ? 11.0 : (h < 110 ? 12.0 : 14.0);
-        final iconSize = isCompact ? 22.0 : (h < 110 ? 26.0 : 30.0);
-        final iconBox = isCompact ? 40.0 : 44.0;
-        final padding = isCompact ? 14.0 : 16.0;
-        final gap = isCompact ? 8.0 : 10.0;
+      builder: (context, constraints) {
+        final maxHeight = constraints.maxHeight;
+        final maxWidth = constraints.maxWidth;
+
+        // Responsive sizing based on available space
+        final isVeryCompact = maxHeight <= 100;
+        final isCompact = maxHeight <= 120;
+
+        // Icon sizing
+        final iconBoxSize = isVeryCompact ? 36.0 : (isCompact ? 40.0 : 44.0);
+        final iconSize = isVeryCompact ? 18.0 : (isCompact ? 20.0 : 24.0);
+
+        // Font sizing with conservative scaling to prevent overflow
+        final valueFontSize = isVeryCompact ? 14.0 : (isCompact ? 16.0 : 22.0);
+        final titleFontSize = isVeryCompact ? 9.0 : (isCompact ? 10.0 : 12.0);
+
+        // Spacing sizing
+        final padding = isVeryCompact ? 10.0 : (isCompact ? 12.0 : 14.0);
+        final gap = isVeryCompact ? 6.0 : (isCompact ? 8.0 : 10.0);
+        final titleGap = isVeryCompact ? 2.0 : 4.0;
 
         return Container(
           padding: EdgeInsets.all(padding),
           decoration: glassCard(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
+              // Icon container
               Container(
-                width: iconBox,
-                height: iconBox,
+                width: iconBoxSize,
+                height: iconBoxSize,
                 decoration: AppDecorations.accentFill(color),
                 child: Icon(icon, color: color, size: iconSize),
               ),
               SizedBox(height: gap),
+              // Content: value and title
               Expanded(
                 child: Align(
                   alignment: Alignment.bottomLeft,
@@ -285,28 +307,41 @@ class KpiSection extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: valueFont,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryText,
-                            height: 1.0,
+                      // Value (KPI number)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: maxWidth - (padding * 2),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            value,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: valueFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryText,
+                              height: 1.0,
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: titleFont,
-                          color: AppColors.secondaryText,
-                          height: 1.15,
+                      SizedBox(height: titleGap),
+                      // Title
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: maxWidth - (padding * 2),
+                        ),
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: titleFontSize,
+                            color: AppColors.secondaryText,
+                            height: 1.1,
+                          ),
                         ),
                       ),
                     ],

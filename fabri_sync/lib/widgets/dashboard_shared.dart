@@ -356,15 +356,20 @@ class DashboardKpiSection extends StatelessWidget {
               children: cards,
             )
           else
-            SizedBox(
-              height: 140,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: cards.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 16),
-                itemBuilder: (_, index) =>
-                    SizedBox(width: 220, child: cards[index]),
-              ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final cardW = (constraints.maxWidth * 0.75).clamp(160.0, 240.0);
+                return SizedBox(
+                  height: 130,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: cards.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, index) =>
+                        SizedBox(width: cardW, child: cards[index]),
+                  ),
+                );
+              },
             ),
         ],
       ),
@@ -373,37 +378,22 @@ class DashboardKpiSection extends StatelessWidget {
 
   Widget _buildKpiCard(DashboardKpiItem item) {
     return LayoutBuilder(
-      builder: (_, constraints) {
-        final h = constraints.maxHeight;
-        final pad = h < 82
-            ? 8.0
-            : h < 95
-            ? 10.0
-            : h < 105
-            ? 12.0
-            : 16.0;
-        final iconSize = h < 82
-            ? 20.0
-            : h < 95
-            ? 22.0
-            : h < 105
-            ? 24.0
-            : 28.0;
-        final valueSize = h < 82
-            ? 18.0
-            : h < 95
-            ? 20.0
-            : h < 105
-            ? 22.0
-            : 26.0;
-        final titleSize = h < 82
-            ? 10.0
-            : h < 95
-            ? 11.0
-            : h < 105
-            ? 11.5
-            : 13.0;
-        final gap = h < 95 ? 2.0 : 4.0;
+      builder: (context, constraints) {
+        final maxHeight = constraints.maxHeight;
+        final maxWidth = constraints.maxWidth;
+
+        // Responsive sizing based on available space
+        final isVeryCompact = maxHeight <= 95;
+        final isCompact = maxHeight <= 110;
+
+        // Icon sizing
+        final iconSize = isVeryCompact ? 20.0 : (isCompact ? 22.0 : 26.0);
+        final pad = isVeryCompact ? 10.0 : (isCompact ? 12.0 : 14.0);
+
+        // Font sizing (conservative to prevent overflow)
+        final valueSize = isVeryCompact ? 16.0 : (isCompact ? 18.0 : 22.0);
+        final titleSize = isVeryCompact ? 10.0 : (isCompact ? 11.0 : 12.0);
+        final gap = isVeryCompact ? 2.0 : 3.0;
 
         return Container(
           padding: EdgeInsets.all(pad),
@@ -412,53 +402,49 @@ class DashboardKpiSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Icon
               Container(
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: AppDecorations.accentFill(item.color),
                 child: Icon(item.icon, color: item.color, size: iconSize),
               ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          item.value,
-                          style: TextStyle(
-                            fontSize: valueSize,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryText,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
+              // Spacer to push content to bottom
+              Expanded(child: SizedBox.expand()),
+              // Value and title at bottom
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth - (pad * 2)),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item.value,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: valueSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryText,
+                      height: 1.0,
                     ),
-
-                    SizedBox(height: gap),
-
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          item.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: titleSize,
-                            color: AppColors.secondaryText,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
+                  ),
+                ),
+              ),
+              SizedBox(height: gap),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth - (pad * 2)),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: titleSize,
+                      color: AppColors.secondaryText,
+                      height: 1.0,
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],

@@ -662,19 +662,66 @@ class AppDecorations {
   }
 }
 
+// class AppTextStyles {
+//   static Shader gradientBlueShader = const LinearGradient(
+//     colors: <Color>[AppColors.primaryAccent, AppColors.accentBlue],
+//   ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+
+//   static const List<Shadow> textShadows = [];
+
+//   static TextStyle titleStyleW = const TextStyle(
+//     fontSize: 38,
+//     fontWeight: FontWeight.w700,
+//     fontFamily: 'Poppins',
+//     letterSpacing: 1.2,
+//     color: AppColors.primaryText,
+//   );
+
+//   static TextStyle subtitleStyleW = const TextStyle(
+//     fontSize: 15.5,
+//     height: 1.5,
+//     fontFamily: 'Poppins',
+//     letterSpacing: 0.2,
+//     color: AppColors.secondaryText,
+//   );
+// }
 class AppTextStyles {
-  static Shader gradientBlueShader = const LinearGradient(
-    colors: <Color>[AppColors.primaryAccent, AppColors.accentBlue],
-  ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+  /// Premium enterprise gradient shader
+  static Shader titleGradientShader = const LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      AppColors.primaryAccent, // Purple
+      AppColors.accentBlue, // Blue touch
+    ],
+  ).createShader(const Rect.fromLTWH(0.0, 0.0, 250.0, 80.0));
 
-  static const List<Shadow> textShadows = [];
+  static const List<Shadow> textShadows = [
+    Shadow(blurRadius: 18, color: Color(0x14000000), offset: Offset(0, 4)),
+  ];
 
-  static TextStyle titleStyleW = const TextStyle(
+  /// MAIN APP TITLE STYLE (modern enterprise feel)
+  static TextStyle titleStyleW = TextStyle(
     fontSize: 38,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w800,
     fontFamily: 'Poppins',
-    letterSpacing: 1.2,
-    color: AppColors.primaryText,
+    letterSpacing: 0.6,
+
+    // Premium purple shade instead of black
+    color: const Color(0xFF6D4CFF),
+
+    // subtle depth
+    shadows: textShadows,
+  );
+
+  /// Optional gradient title style (for hero headings)
+  static TextStyle gradientTitleStyle = TextStyle(
+    fontSize: 38,
+    fontWeight: FontWeight.w800,
+    fontFamily: 'Poppins',
+    letterSpacing: 0.6,
+    foreground: Paint()..shader = titleGradientShader,
+    shadows: textShadows,
   );
 
   static TextStyle subtitleStyleW = const TextStyle(

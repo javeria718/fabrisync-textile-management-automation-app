@@ -89,7 +89,7 @@ class _SignUpFormContent extends StatelessWidget {
         Text(
           'FabriSync',
           textAlign: TextAlign.center,
-          style: AppTextStyles.titleStyleW,
+          style: AppTextStyles.gradientTitleStyle,
         ),
         const SizedBox(height: 12),
         Text(
@@ -256,11 +256,15 @@ class _SignUpFormContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 2,
+          runSpacing: 0,
           children: [
             const Text(
               'Already have an account?',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.secondaryText,
@@ -268,6 +272,11 @@ class _SignUpFormContent extends StatelessWidget {
               ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/role_selection');
               },
@@ -282,6 +291,32 @@ class _SignUpFormContent extends StatelessWidget {
             ),
           ],
         ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     const Text(
+        //       'Already have an account?',
+        //       style: TextStyle(
+        //         fontSize: 12,
+        //         color: AppColors.secondaryText,
+        //         fontWeight: FontWeight.w600,
+        //       ),
+        //     ),
+        //     TextButton(
+        //       onPressed: () {
+        //         Navigator.pushReplacementNamed(context, '/role_selection');
+        //       },
+        //       child: const Text(
+        //         'Login',
+        //         style: TextStyle(
+        //           fontSize: 12,
+        //           fontWeight: FontWeight.w700,
+        //           decoration: TextDecoration.underline,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }

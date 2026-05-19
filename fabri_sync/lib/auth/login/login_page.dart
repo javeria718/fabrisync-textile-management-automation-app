@@ -1,4 +1,4 @@
-import 'package:fabri_sync/auth/frosted_glass.dart';
+import 'package:fabri_sync/widgets/frosted_glass.dart';
 import 'package:fabri_sync/onboarding/role_selection_screen.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:flutter/material.dart';

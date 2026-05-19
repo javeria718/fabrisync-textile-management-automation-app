@@ -58,15 +58,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Gradient background
+      // White background
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.customBgColor, Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: Colors.white,
         child: LayoutBuilder(
           builder: (context, constraints) {
             double logoSize = constraints.maxWidth * 0.58;
@@ -81,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: SizedBox(
                       width: logoSize,
                       child: Image.asset(
-                        "assets/images/logo-removebg-preview.png",
+                        "assets/images/NEW APP ICON.png",
                         fit: BoxFit.contain,
                       ),
                     ),

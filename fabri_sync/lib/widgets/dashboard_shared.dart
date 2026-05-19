@@ -470,7 +470,7 @@ class DashboardKpiItem {
 }
 
 String prettyDepartment(String dept) {
-  final value = dept.trim().toUpperCase();
+  final value = dept.trim().replaceAll(' ', '_').toUpperCase();
   if (value.isEmpty) return 'Department';
   switch (value) {
     case 'QUALITY_CONTROL':
@@ -478,7 +478,15 @@ String prettyDepartment(String dept) {
     case 'PACKAGING':
       return 'Packaging';
     default:
-      return value[0] + value.substring(1).toLowerCase();
+      final normalized = value.replaceAll('_', ' ').toLowerCase();
+      return normalized
+          .split(' ')
+          .map(
+            (segment) => segment.isEmpty
+                ? segment
+                : '${segment[0].toUpperCase()}${segment.substring(1)}',
+          )
+          .join(' ');
   }
 }
 

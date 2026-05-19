@@ -1,5 +1,5 @@
 import 'package:fabri_sync/auth/Forgotpass/password_updated.dart';
-import 'package:fabri_sync/auth/frosted_glass.dart';
+import 'package:fabri_sync/widgets/frosted_glass.dart';
 import 'package:fabri_sync/services/auth_services.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/widgets/custombutton.dart';

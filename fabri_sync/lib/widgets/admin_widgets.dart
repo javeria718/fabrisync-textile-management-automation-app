@@ -108,11 +108,20 @@ class NoGlowScrollBehavior extends ScrollBehavior {
 BoxDecoration glassCard() => AppDecorations.surface(radius: 20);
 
 String _deptLabel(String value) {
-  final dept = value.trim().toUpperCase();
+  final dept = value.trim().replaceAll(' ', '_').toUpperCase();
   if (dept == 'QUALITY_CONTROL') return 'Quality Control';
   if (dept == 'PACKAGING') return 'Packaging';
   if (dept.isEmpty) return '-';
-  return dept;
+
+  final normalized = dept.replaceAll('_', ' ').toLowerCase();
+  return normalized
+      .split(' ')
+      .map(
+        (segment) => segment.isEmpty
+            ? segment
+            : '${segment[0].toUpperCase()}${segment.substring(1)}',
+      )
+      .join(' ');
 }
 
 class GlassOverlayCard extends StatelessWidget {
@@ -449,9 +458,20 @@ class DepartmentProgressSection extends StatelessWidget {
   String _deptDbName(Department dept) => dept.name.toUpperCase();
 
   String _deptLabel(String value) {
-    if (value == 'QUALITY_CONTROL') return 'Quality Control';
-    if (value == 'PACKAGING') return 'Packaging';
-    return value;
+    final dept = value.trim().replaceAll(' ', '_').toUpperCase();
+    if (dept == 'QUALITY_CONTROL') return 'Quality Control';
+    if (dept == 'PACKAGING') return 'Packaging';
+    if (dept.isEmpty) return '-';
+
+    final normalized = dept.replaceAll('_', ' ').toLowerCase();
+    return normalized
+        .split(' ')
+        .map(
+          (segment) => segment.isEmpty
+              ? segment
+              : '${segment[0].toUpperCase()}${segment.substring(1)}',
+        )
+        .join(' ');
   }
 
   Widget _cardWrapper({String? title, required Widget child}) {

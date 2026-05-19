@@ -37,11 +37,7 @@ Widget primaryButton({
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (showTick) ...[
-                    const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 18,
-                    ),
+                    const Icon(Icons.check, color: Colors.white, size: 18),
                     const SizedBox(width: 6),
                   ],
                   Text(

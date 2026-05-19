@@ -1,5 +1,5 @@
 import 'package:fabri_sync/auth/Forgotpass/reset_pass.dart';
-import 'package:fabri_sync/auth/frosted_glass.dart';
+import 'package:fabri_sync/widgets/frosted_glass.dart';
 import 'package:fabri_sync/services/auth_services.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/widgets/custombutton.dart';
@@ -200,7 +200,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         child: Material(
                                           color: Colors.transparent,
                                           child: Container(
-                                            margin: const EdgeInsets.only(top: 6),
+                                            margin: const EdgeInsets.only(
+                                              top: 6,
+                                            ),
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 6,
                                             ),
@@ -216,17 +218,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                               shrinkWrap: true,
                                               itemCount: options.length,
                                               itemBuilder: (context, index) {
-                                                final option = options.elementAt(index);
+                                                final option = options
+                                                    .elementAt(index);
                                                 return ListTile(
                                                   dense: true,
                                                   title: Text(
                                                     option,
                                                     style: const TextStyle(
                                                       fontSize: 13,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
-                                                  onTap: () => onSelected(option),
+                                                  onTap: () =>
+                                                      onSelected(option),
                                                 );
                                               },
                                             ),

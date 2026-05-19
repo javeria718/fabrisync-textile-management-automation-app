@@ -1,8 +1,9 @@
-import 'package:fabri_sync/auth/frosted_glass.dart';
+import 'package:fabri_sync/widgets/frosted_glass.dart';
 import 'package:fabri_sync/auth/signup/build.dart';
 import 'package:fabri_sync/auth/signup/signup_controller.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/widgets/custombutton.dart';
+import 'package:fabri_sync/widgets/dashboard_shared.dart';
 import 'package:fabri_sync/widgets/textfields.dart';
 import 'package:flutter/material.dart';
 
@@ -122,7 +123,12 @@ class _SignUpFormContent extends StatelessWidget {
             icon: Icons.apartment_outlined,
             hintText: 'Choose department',
             items: controller.departments
-                .map((dept) => DropdownMenuItem(value: dept, child: Text(dept)))
+                .map(
+                  (dept) => DropdownMenuItem(
+                    value: dept,
+                    child: Text(prettyDepartment(dept)),
+                  ),
+                )
                 .toList(),
             onChanged: (value) {
               controller.selectedDepartment = value;

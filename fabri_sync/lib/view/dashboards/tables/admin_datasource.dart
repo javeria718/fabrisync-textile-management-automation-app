@@ -326,11 +326,20 @@ class OrdersDataSource extends DataTableSource {
   }
 
   String _departmentLabel(String? value) {
-    final dept = (value ?? '').trim().toUpperCase();
+    final dept = (value ?? '').trim().replaceAll(' ', '_').toUpperCase();
     if (dept == 'QUALITY_CONTROL') return 'Quality Control';
     if (dept == 'PACKAGING') return 'Packaging';
     if (dept.isEmpty) return '-';
-    return dept[0] + dept.substring(1).toLowerCase();
+
+    final normalized = dept.replaceAll('_', ' ').toLowerCase();
+    return normalized
+        .split(' ')
+        .map(
+          (segment) => segment.isEmpty
+              ? segment
+              : '${segment[0].toUpperCase()}${segment.substring(1)}',
+        )
+        .join(' ');
   }
 
   String _statusLabel(String? value) {

@@ -1,4 +1,4 @@
-import 'package:fabri_sync/auth/frosted_glass.dart';
+import 'package:fabri_sync/widgets/frosted_glass.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/widgets/custombutton.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +67,10 @@ class PasswordUpdatedScreen extends StatelessWidget {
                           width: double.infinity,
                           label: "Back to Sign In",
                           onPressed: () {
-                            Navigator.popUntil(context, (route) => route.isFirst);
+                            Navigator.popUntil(
+                              context,
+                              (route) => route.isFirst,
+                            );
                           },
                         ),
                       ),

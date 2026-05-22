@@ -105,11 +105,9 @@ class BedsheetCalculationService {
   BedsheetCalculationService({
     BedsheetCostRepository? repository,
     SupabaseClient? client,
-  }) : _repository = repository ?? BedsheetCostRepository(client: client),
-       _client = client ?? Supabase.instance.client;
+  }) : _repository = repository ?? BedsheetCostRepository(client: client);
 
   final BedsheetCostRepository _repository;
-  final SupabaseClient _client;
 
   /// Calculate bedsheet estimate using dedicated module logic.
   Future<CalculationResult> calculateBedsheetEstimate(

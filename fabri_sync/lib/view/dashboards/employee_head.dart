@@ -130,9 +130,7 @@ class _EmployeeHeadPanelState extends State<EmployeeHeadPanel> {
     if (!mounted) return;
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${item.itemCode} marked complete.')),
-      );
+      _showSuccessSnack('${item.itemCode} marked as completed');
     } else if (controller.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -176,12 +174,8 @@ class _EmployeeHeadPanelState extends State<EmployeeHeadPanel> {
 
     if (success) {
       final result = controller.lastCompletionResult;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result?.message ?? 'Department completed and sent forward.',
-          ),
-        ),
+      _showSuccessSnack(
+        result?.message ?? 'Department completed and sent forward.',
       );
     } else if (controller.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -191,6 +185,34 @@ class _EmployeeHeadPanelState extends State<EmployeeHeadPanel> {
         ),
       );
     }
+  }
+
+  void _showSuccessSnack(String message) {
+    if (!mounted) return;
+    final snack = SnackBar(
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      backgroundColor: AppColors.success,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      content: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.white),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      duration: const Duration(seconds: 3),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snack);
   }
 
   Future<bool?> _showCompletionConfirmDialog() {

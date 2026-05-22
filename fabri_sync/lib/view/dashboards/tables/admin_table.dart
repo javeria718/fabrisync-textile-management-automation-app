@@ -55,10 +55,7 @@ class _TableScreenState extends State<TableScreen> {
     });
 
     try {
-      var query = supabase
-          .from('ordersmain')
-          .select()
-          .neq('status', 'draft');
+      var query = supabase.from('ordersmain').select().neq('status', 'draft');
 
       if (selectedDepartment != null) {
         query = query.eq(
@@ -95,7 +92,8 @@ class _TableScreenState extends State<TableScreen> {
           'progress_percent': progress?.progressPercent ?? 0.0,
           'has_custom_packaging': row['custom_packaging'] == true,
           'has_special_instructions':
-              ((row['special_instructions'] ?? '').toString().trim()).isNotEmpty,
+              ((row['special_instructions'] ?? '').toString().trim())
+                  .isNotEmpty,
         };
         return OrderSummaryModel.fromMap(merged);
       }).toList();
@@ -144,11 +142,11 @@ class _TableScreenState extends State<TableScreen> {
         final completed = rows
             .where(
               (row) =>
-                  (row['status'] ?? '').toString().toLowerCase() ==
-                  'completed',
+                  (row['status'] ?? '').toString().toLowerCase() == 'completed',
             )
             .length;
-        final total = rows.isEmpty ? 6 : rows.length;
+        // Use the canonical workflow length rather than number of rows returned.
+        final total = Department.values.length;
         return MapEntry(
           orderId,
           _OrderProgress(
@@ -276,7 +274,10 @@ class _TableScreenState extends State<TableScreen> {
       backgroundColor: AppColors.appBackground,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primaryText),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.primaryText,
+          ),
           onPressed: () => Navigator.of(context).maybePop(),
           tooltip: 'Back',
         ),
@@ -368,74 +369,94 @@ class _TableScreenState extends State<TableScreen> {
                                     children: [
                                       SizedBox(
                                         width: itemWidth,
-                                        child: DropdownButtonFormField<WorkStatus?>(
-                                          value: selectedStatus,
-                                          dropdownColor: AppColors.surface,
-                                          decoration: _dropdownDecoration("Status"),
-                                          iconEnabledColor: AppColors.secondaryText,
-                                          style: const TextStyle(
-                                            color: AppColors.primaryText,
-                                          ),
-                                          items: [
-                                            const DropdownMenuItem(
-                                              value: null,
-                                              child: Text("All Statuses"),
-                                            ),
-                                            ...WorkStatus.values.map(
-                                              (s) => DropdownMenuItem(
-                                                value: s,
-                                                child: Text(s.name),
+                                        child:
+                                            DropdownButtonFormField<
+                                              WorkStatus?
+                                            >(
+                                              value: selectedStatus,
+                                              dropdownColor: AppColors.surface,
+                                              decoration: _dropdownDecoration(
+                                                "Status",
                                               ),
+                                              iconEnabledColor:
+                                                  AppColors.secondaryText,
+                                              style: const TextStyle(
+                                                color: AppColors.primaryText,
+                                              ),
+                                              items: [
+                                                const DropdownMenuItem(
+                                                  value: null,
+                                                  child: Text("All Statuses"),
+                                                ),
+                                                ...WorkStatus.values.map(
+                                                  (s) => DropdownMenuItem(
+                                                    value: s,
+                                                    child: Text(s.name),
+                                                  ),
+                                                ),
+                                              ],
+                                              onChanged: (v) {
+                                                if (!mounted) return;
+                                                setState(
+                                                  () => selectedStatus = v,
+                                                );
+                                              },
                                             ),
-                                          ],
-                                          onChanged: (v) {
-                                            if (!mounted) return;
-                                            setState(() => selectedStatus = v);
-                                          },
-                                        ),
                                       ),
                                       SizedBox(
                                         width: itemWidth,
-                                        child: DropdownButtonFormField<Department?>(
-                                          value: selectedDepartment,
-                                          dropdownColor: AppColors.surface,
-                                          decoration: _dropdownDecoration(
-                                            "Department",
-                                          ),
-                                          iconEnabledColor: AppColors.secondaryText,
-                                          style: const TextStyle(
-                                            color: AppColors.primaryText,
-                                          ),
-                                          items: [
-                                            const DropdownMenuItem(
-                                              value: null,
-                                              child: Text("All Departments"),
-                                            ),
-                                            ...Department.values.map(
-                                              (d) => DropdownMenuItem(
-                                                value: d,
-                                                child: Text(
-                                                  d.name.toUpperCase(),
-                                                  style: const TextStyle(
-                                                    letterSpacing: 0.6,
-                                                    fontWeight: FontWeight.w600,
+                                        child:
+                                            DropdownButtonFormField<
+                                              Department?
+                                            >(
+                                              value: selectedDepartment,
+                                              dropdownColor: AppColors.surface,
+                                              decoration: _dropdownDecoration(
+                                                "Department",
+                                              ),
+                                              iconEnabledColor:
+                                                  AppColors.secondaryText,
+                                              style: const TextStyle(
+                                                color: AppColors.primaryText,
+                                              ),
+                                              items: [
+                                                const DropdownMenuItem(
+                                                  value: null,
+                                                  child: Text(
+                                                    "All Departments",
                                                   ),
                                                 ),
-                                              ),
+                                                ...Department.values.map(
+                                                  (d) => DropdownMenuItem(
+                                                    value: d,
+                                                    child: Text(
+                                                      d.label,
+                                                      style: const TextStyle(
+                                                        letterSpacing: 0.6,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                              onChanged: (value) async {
+                                                if (!mounted) return;
+                                                setState(
+                                                  () => selectedDepartment =
+                                                      value,
+                                                );
+                                                await fetchOrders();
+                                              },
                                             ),
-                                          ],
-                                          onChanged: (value) async {
-                                            if (!mounted) return;
-                                            setState(() => selectedDepartment = value);
-                                            await fetchOrders();
-                                          },
-                                        ),
                                       ),
                                       SizedBox(
                                         width: itemWidth,
                                         child: InkWell(
                                           onTap: pickStartDate,
-                                          borderRadius: BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                           child: _Panel(
                                             radius: 14,
                                             color: AppColors.surfaceMuted,
@@ -449,7 +470,8 @@ class _TableScreenState extends State<TableScreen> {
                                                 const Icon(
                                                   Icons.date_range,
                                                   size: 18,
-                                                  color: AppColors.secondaryText,
+                                                  color:
+                                                      AppColors.secondaryText,
                                                 ),
                                                 const SizedBox(width: 10),
                                                 Expanded(
@@ -458,14 +480,17 @@ class _TableScreenState extends State<TableScreen> {
                                                         ? "Start Date: Any"
                                                         : "Start Date: ${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}",
                                                     style: const TextStyle(
-                                                      color: AppColors.primaryText,
-                                                      fontWeight: FontWeight.w600,
+                                                      color:
+                                                          AppColors.primaryText,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                 ),
                                                 const Icon(
                                                   Icons.arrow_drop_down,
-                                                  color: AppColors.secondaryText,
+                                                  color:
+                                                      AppColors.secondaryText,
                                                 ),
                                               ],
                                             ),
@@ -498,8 +523,7 @@ class _TableScreenState extends State<TableScreen> {
                                     child: Theme(
                                       data: Theme.of(context).copyWith(
                                         dividerColor: AppColors.divider,
-                                        textTheme: Theme.of(context)
-                                            .textTheme
+                                        textTheme: Theme.of(context).textTheme
                                             .apply(
                                               bodyColor: AppColors.primaryText,
                                               displayColor:
@@ -517,8 +541,8 @@ class _TableScreenState extends State<TableScreen> {
                                         dataRowHeight: 64,
                                         headingRowColor:
                                             MaterialStateProperty.all(
-                                          AppColors.surfaceMuted,
-                                        ),
+                                              AppColors.surfaceMuted,
+                                            ),
                                         headingTextStyle: const TextStyle(
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.primaryText,

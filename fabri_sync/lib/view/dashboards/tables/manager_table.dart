@@ -120,48 +120,6 @@ class _ManagerDepartmentTableScreenState
     }
   }
 
-  Future<Map<String, _OrderProgress>> _fetchProgressByOrder(
-    List<String> orderIds,
-  ) async {
-    if (orderIds.isEmpty) return {};
-
-    try {
-      final data = await supabase
-          .from('department_orders')
-          .select('order_id, status')
-          .inFilter('order_id', orderIds)
-          .eq('department', widget.department.toUpperCase());
-
-      final grouped = <String, List<Map<String, dynamic>>>{};
-      for (final item in data as List) {
-        final row = Map<String, dynamic>.from(item);
-        final orderId = (row['order_id'] ?? '').toString();
-        if (orderId.isEmpty) continue;
-        grouped.putIfAbsent(orderId, () => []).add(row);
-      }
-
-      return grouped.map((orderId, rows) {
-        final completed = rows
-            .where(
-              (row) =>
-                  (row['status'] ?? '').toString().toLowerCase() == 'completed',
-            )
-            .length;
-        final total = rows.isEmpty ? 1 : rows.length;
-        return MapEntry(
-          orderId,
-          _OrderProgress(
-            completedDepartments: completed,
-            totalDepartments: total,
-          ),
-        );
-      });
-    } catch (e) {
-      debugPrint('[ManagerOrders] progress fetch error: $e');
-      rethrow;
-    }
-  }
-
   void setupRealtime() {
     _channel?.unsubscribe();
 
@@ -249,7 +207,7 @@ class _ManagerDepartmentTableScreenState
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          "${widget.department} Orders",
+          "${_departmentTitle(widget.department)} Orders",
           style: const TextStyle(
             color: AppColors.primaryText,
             fontSize: 20,
@@ -470,7 +428,6 @@ class _ManagerDepartmentTableScreenState
                                           DataColumn(label: Text("Product")),
                                           DataColumn(label: Text("Quantity")),
                                           DataColumn(label: Text("Priority")),
-                                          DataColumn(label: Text("Progress")),
                                           DataColumn(label: Text("Date In")),
                                           DataColumn(label: Text("Time In")),
                                           DataColumn(
@@ -483,6 +440,7 @@ class _ManagerDepartmentTableScreenState
                                         source: ManagerOrdersDataSource(
                                           visibleOrders,
                                           context,
+                                          widget.department,
                                         ),
                                       ),
                                     ),
@@ -496,6 +454,22 @@ class _ManagerDepartmentTableScreenState
         ],
       ),
     );
+  }
+
+  String _departmentTitle(String dept) {
+    final s = dept.trim();
+    if (s.isEmpty) return 'Orders';
+    final replaced = s.replaceAll('_', ' ');
+    final parts = replaced.split(RegExp(r"\s+"));
+    final titled = parts
+        .map((p) {
+          final lower = p.toLowerCase();
+          return lower.isEmpty
+              ? ''
+              : '${lower[0].toUpperCase()}${lower.substring(1)}';
+        })
+        .join(' ');
+    return titled;
   }
 
   InputDecoration _inputDecoration({
@@ -552,21 +526,6 @@ class _ManagerDepartmentTableScreenState
         ),
       ),
     );
-  }
-}
-
-class _OrderProgress {
-  const _OrderProgress({
-    required this.completedDepartments,
-    required this.totalDepartments,
-  });
-
-  final int completedDepartments;
-  final int totalDepartments;
-
-  double get progressPercent {
-    if (totalDepartments <= 0) return 0;
-    return (completedDepartments / totalDepartments) * 100;
   }
 }
 

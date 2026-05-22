@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:fabri_sync/services/abaya/abaya_pricing_rules.dart';
 import 'package:fabri_sync/services/bedsheet/bedsheet_pricing_rules.dart';
 import 'package:fabri_sync/services/curtain/curtain_pricing_rules.dart';
@@ -9,14 +12,37 @@ import 'package:fabri_sync/services/bedsheet/bedsheet_cost_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HelpCenterService {
-  HelpCenterService({SupabaseClient? client, ProductHelpRepository? repository})
-    : _repository = repository ?? ProductHelpRepository(client: client);
+  // Shared singleton instance
+  static final HelpCenterService _shared = HelpCenterService._internal();
+
+  factory HelpCenterService({
+    SupabaseClient? client,
+    ProductHelpRepository? repository,
+  }) => _shared;
+
+  HelpCenterService._internal({
+    SupabaseClient? client,
+    ProductHelpRepository? repository,
+  }) : _repository = repository ?? ProductHelpRepository(client: client) {
+    _catalogNotifier = ValueNotifier<ProductHelpCatalog?>(null);
+    _setupRealtimeSubscriptions();
+    // eagerly load catalog once
+    loadCatalog();
+  }
 
   final ProductHelpRepository _repository;
   ProductHelpCatalog? _cachedCatalog;
+  late final ValueNotifier<ProductHelpCatalog?> _catalogNotifier;
+  ValueListenable<ProductHelpCatalog?> get catalogNotifier => _catalogNotifier;
+
+  // Realtime channel and debounce helpers
+  RealtimeChannel? _channel;
+  Timer? _refreshTimer;
+  bool _refreshInProgress = false;
 
   Future<ProductHelpCatalog> loadCatalog({bool forceRefresh = false}) async {
     if (_cachedCatalog != null && !forceRefresh) {
+      _catalogNotifier.value = _cachedCatalog!;
       return _cachedCatalog!;
     }
 
@@ -34,6 +60,7 @@ class HelpCenterService {
     );
 
     _cachedCatalog = catalog;
+    _catalogNotifier.value = catalog;
     return catalog;
   }
 
@@ -349,5 +376,71 @@ class HelpCenterService {
         'Total cost = material + labor + processing + QC + packaging + printing setup + premium handling + rush charges',
       ],
     );
+  }
+
+  void _setupRealtimeSubscriptions() {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // If a previous channel exists remove it first
+      if (_channel != null) {
+        try {
+          supabase.removeChannel(_channel!);
+        } catch (_) {}
+        _channel = null;
+      }
+
+      _channel = supabase
+          .channel('help-center-cost-configs')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'curtain_cost_config',
+            callback: (_) => _scheduleRefresh(),
+          )
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'abaya_cost_config',
+            callback: (_) => _scheduleRefresh(),
+          )
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'bedsheet_cost_config',
+            callback: (_) => _scheduleRefresh(),
+          )
+          .subscribe();
+    } catch (e) {
+      debugPrint('[HelpCenterService] realtime setup failed: $e');
+    }
+  }
+
+  void _scheduleRefresh() {
+    // debounce rapid events
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer(const Duration(milliseconds: 500), () async {
+      if (_refreshInProgress) return;
+      _refreshInProgress = true;
+      try {
+        _cachedCatalog = null;
+        await loadCatalog(forceRefresh: true);
+      } catch (e) {
+        debugPrint('[HelpCenterService] refresh error: $e');
+      } finally {
+        _refreshInProgress = false;
+      }
+    });
+  }
+
+  /// Dispose of resources (call on app shutdown if desired)
+  void dispose() {
+    try {
+      if (_channel != null) Supabase.instance.client.removeChannel(_channel!);
+    } catch (_) {}
+    _refreshTimer?.cancel();
+    try {
+      _catalogNotifier.dispose();
+    } catch (_) {}
   }
 }

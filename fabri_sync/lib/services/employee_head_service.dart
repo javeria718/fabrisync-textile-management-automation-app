@@ -79,6 +79,33 @@ class EmployeeHeadService {
         .toList();
   }
 
+  Future<int> countCompletedDepartmentOrders(String department) async {
+    final dept = normalizeDepartment(department);
+    _requireCanonicalDepartment(dept);
+
+    final rows = await supabase
+        .from('v_department_orders_full')
+        .select()
+        .eq('department', dept)
+        .eq('status', 'completed')
+        .neq('order_status', 'draft');
+
+    return (rows as List).length;
+  }
+
+  Future<int> countTotalDepartmentOrders(String department) async {
+    final dept = normalizeDepartment(department);
+    _requireCanonicalDepartment(dept);
+
+    final rows = await supabase
+        .from('v_department_orders_full')
+        .select()
+        .eq('department', dept)
+        .neq('order_status', 'draft');
+
+    return (rows as List).length;
+  }
+
   Future<List<OrderItemTracking>> fetchOrderItems(String orderId) async {
     final rows = await supabase
         .from('order_items')
@@ -109,9 +136,7 @@ class EmployeeHeadService {
         .order('sequence_number', ascending: true)
         .order('created_at', ascending: true);
 
-    return (rows as List)
-        .map((row) => Map<String, dynamic>.from(row))
-        .toList();
+    return (rows as List).map((row) => Map<String, dynamic>.from(row)).toList();
   }
 
   Future<DepartmentProgressSummary> markItemComplete({
@@ -320,21 +345,21 @@ class EmployeeHeadService {
 
   bool isEmployeeHeadOrderLate(EmployeeHeadOrder order) {
     return _estimatedEndFromParts(
-      dateIn: order.dateIn,
-      timeIn: order.timeIn,
-      expectedHours: order.expectedHours,
-      plannedEndDate: order.plannedEndDate,
-    )?.isBefore(DateTime.now()) ??
+          dateIn: order.dateIn,
+          timeIn: order.timeIn,
+          expectedHours: order.expectedHours,
+          plannedEndDate: order.plannedEndDate,
+        )?.isBefore(DateTime.now()) ??
         false;
   }
 
   bool isDepartmentOrderLateMap(Map<String, dynamic> row) {
     return _estimatedEndFromParts(
-      dateIn: _parseDate(row['date_in']),
-      timeIn: _nullableText(row['time_in']?.toString()),
-      expectedHours: (row['expected_hours'] as num?)?.toDouble(),
-      plannedEndDate: _parseDate(row['planned_end_date']),
-    )?.isBefore(DateTime.now()) ??
+          dateIn: _parseDate(row['date_in']),
+          timeIn: _nullableText(row['time_in']?.toString()),
+          expectedHours: (row['expected_hours'] as num?)?.toDouble(),
+          plannedEndDate: _parseDate(row['planned_end_date']),
+        )?.isBefore(DateTime.now()) ??
         false;
   }
 
@@ -524,8 +549,7 @@ class EmployeeHeadService {
   bool _isMissingColumnError(PostgrestException error, String column) {
     final message = error.message.toLowerCase();
     return error.code == '42703' ||
-        (message.contains(column.toLowerCase()) &&
-            message.contains('column'));
+        (message.contains(column.toLowerCase()) && message.contains('column'));
   }
 
   bool _isCompleteSummary(DepartmentProgressSummary summary) {
@@ -543,9 +567,7 @@ class EmployeeHeadService {
     if (dateIn != null && timeIn != null && expectedHours != null) {
       final start = _combineDateAndTime(dateIn, timeIn);
       if (start != null) {
-        return start.add(
-          Duration(seconds: (expectedHours * 3600).round()),
-        );
+        return start.add(Duration(seconds: (expectedHours * 3600).round()));
       }
     }
 

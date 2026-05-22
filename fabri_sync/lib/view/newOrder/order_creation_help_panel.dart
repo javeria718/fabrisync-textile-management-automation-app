@@ -58,29 +58,22 @@ class OrderCreationHelpPanel extends StatefulWidget {
 }
 
 class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
-  late final Future<ProductHelpCatalog> _catalogFuture;
   int _selectedTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _catalogFuture = HelpCenterService().loadCatalog();
+    final svc = HelpCenterService();
+    if (svc.catalogNotifier.value == null) svc.loadCatalog();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ProductHelpCatalog>(
-      future: _catalogFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return _buildLoading();
-        }
+    return ValueListenableBuilder<ProductHelpCatalog?>(
+      valueListenable: HelpCenterService().catalogNotifier,
+      builder: (context, catalog, _) {
+        if (catalog == null) return _buildLoading();
 
-        if (snapshot.hasError) {
-          return _buildError(snapshot.error.toString());
-        }
-
-        final catalog = snapshot.data!;
         return DefaultTabController(
           length: catalog.categories.length,
           initialIndex: _selectedTabIndex,
@@ -475,41 +468,13 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
     );
   }
 
-  Widget _buildError(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load guide',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryText,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.secondaryText,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _refreshCatalog() async {
-    setState(() {
-      _catalogFuture = HelpCenterService().refreshCatalog();
-    });
+    final catalog = await HelpCenterService().refreshCatalog();
+    if (!mounted) return;
+    if (_selectedTabIndex >= catalog.categories.length) {
+      setState(() => _selectedTabIndex = 0);
+    } else {
+      setState(() {});
+    }
   }
 }

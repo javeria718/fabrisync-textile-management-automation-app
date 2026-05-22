@@ -1,6 +1,7 @@
 import 'package:fabri_sync/Model/employee_head_models.dart';
 import 'package:fabri_sync/services/employee_head_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EmployeeHeadController extends ChangeNotifier {
   EmployeeHeadController({EmployeeHeadService? service})
@@ -31,6 +32,7 @@ class EmployeeHeadController extends ChangeNotifier {
   List<EmployeeHeadOrder> lateOrdersList = [];
 
   bool _disposed = false;
+  RealtimeChannel? _channel;
 
   String? get department => profile?.department;
   int get totalQuantity => progressSummary.totalQuantity;
@@ -56,11 +58,55 @@ class EmployeeHeadController extends ChangeNotifier {
     try {
       profile = await _service.getCurrentEmployeeHeadProfile();
       await refreshOrders();
+      _setupRealtime();
     } catch (e) {
       error = e.toString();
     } finally {
       loading = false;
       _notify();
+    }
+  }
+
+  void _setupRealtime() {
+    final dept = department;
+    if (dept == null || dept.isEmpty) return;
+
+    try {
+      // remove existing channel if any
+      if (_channel != null) {
+        try {
+          Supabase.instance.client.removeChannel(_channel!);
+        } catch (_) {}
+        _channel = null;
+      }
+
+      _channel = Supabase.instance.client
+          .channel('employee-head-$dept')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'department_orders',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'department',
+              value: dept.toUpperCase(),
+            ),
+            callback: (payload, [ref]) async {
+              await refreshOrders();
+            },
+          )
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'ordersmain',
+            callback: (payload, [ref]) async {
+              await refreshOrders();
+            },
+          )
+          .subscribe();
+    } catch (e) {
+      // ignore realtime setup failures, but keep app functional
+      debugPrint('[EmployeeHeadController] realtime setup failed: $e');
     }
   }
 
@@ -84,13 +130,22 @@ class EmployeeHeadController extends ChangeNotifier {
       }
 
       // Calculate KPIs
-      totalOrders = activeOrders.length;
       inProgressOrders = activeOrders
           .where((o) => o.status.toLowerCase() == 'inprogress')
           .length;
-      completedOrders = activeOrders
-          .where((o) => o.status.toLowerCase() == 'completed')
-          .length;
+
+      // Fetch completed and total counts from the view to ensure accuracy.
+      try {
+        final results = await Future.wait<int>([
+          _service.countTotalDepartmentOrders(dept),
+          _service.countCompletedDepartmentOrders(dept),
+        ]);
+        totalOrders = results[0];
+        completedOrders = results[1];
+      } catch (e) {
+        // fallback: preserve previous values or derive from activeOrders
+        totalOrders = activeOrders.length + (completedOrders);
+      }
       lateOrdersList = activeOrders
           .where((o) => _service.isEmployeeHeadOrderLate(o))
           .toList();
@@ -280,6 +335,12 @@ class EmployeeHeadController extends ChangeNotifier {
 
   @override
   void dispose() {
+    if (_channel != null) {
+      try {
+        Supabase.instance.client.removeChannel(_channel!);
+      } catch (_) {}
+      _channel = null;
+    }
     _disposed = true;
     super.dispose();
   }

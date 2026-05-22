@@ -2,17 +2,19 @@ import 'package:fabri_sync/Model/orderModel.dart';
 import 'package:fabri_sync/Model/order_summary_model.dart';
 import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:fabri_sync/utils/work_duration_formatter.dart';
-import 'package:fabri_sync/view/dashboards/tables/order_details.dart';
+import 'package:fabri_sync/view/dashboards/tables/manager_order_details.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManagerOrdersDataSource extends DataTableSource {
-  ManagerOrdersDataSource(this.orders, this.context) {
+  ManagerOrdersDataSource(this.orders, this.context, this.department) {
     debugPrint('[ManagerOrders] final table row count: ${orders.length}');
   }
 
   final List<OrderSummaryModel> orders;
   final BuildContext context;
+  final String department;
   final supabase = Supabase.instance.client;
 
   @override
@@ -36,14 +38,13 @@ class ManagerOrdersDataSource extends DataTableSource {
         DataCell(_productCell(order)),
         DataCell(_plainText(order.quantity.toString())),
         DataCell(_priorityChip(order.priority)),
-        DataCell(_progressCell(order)),
         DataCell(_plainText(_formatDate(order.departmentDateIn))),
-        DataCell(_plainText(order.departmentTimeIn ?? '-')),
+        DataCell(_plainText(_formatTime(order.departmentTimeIn))),
         DataCell(
           _plainText(_formatExpectedHours(order.departmentExpectedHours)),
         ),
         DataCell(_plainText(_formatDate(order.departmentDateOut))),
-        DataCell(_plainText(order.departmentTimeOut ?? '-')),
+        DataCell(_plainText(_formatTime(order.departmentTimeOut))),
         DataCell(_statusChip(order.departmentStatus ?? order.orderStatus)),
       ],
     );
@@ -158,36 +159,15 @@ class ManagerOrdersDataSource extends DataTableSource {
     );
   }
 
-  Widget _progressCell(OrderSummaryModel order) {
-    if (order.totalDepartments <= 0) return _plainText('-');
-    final progress = (order.progressPercent / 100).clamp(0.0, 1.0).toDouble();
-    return SizedBox(
-      width: 112,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${order.completedDepartments}/${order.totalDepartments}',
-            style: const TextStyle(
-              color: AppColors.primaryText,
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: AppColors.surfaceMuted,
-              color: AppColors.primaryAccent,
-            ),
-          ),
-        ],
-      ),
-    );
+  String _formatTime(String? timeStr) {
+    if (timeStr == null) return '-';
+    final s = timeStr.split('.').first.trim();
+    final parts = s.split(':');
+    if (parts.length < 2) return s;
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    final dt = DateTime(2000, 1, 1, h, m);
+    return DateFormat.jm().format(dt);
   }
 
   Future<void> _openDetails(OrderSummaryModel order) async {
@@ -196,7 +176,10 @@ class ManagerOrdersDataSource extends DataTableSource {
     if (!context.mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => OrderDetailsScreen(order: fullOrder)),
+      MaterialPageRoute(
+        builder: (_) =>
+            ManagerOrderDetailsScreen(order: fullOrder, department: department),
+      ),
     );
   }
 

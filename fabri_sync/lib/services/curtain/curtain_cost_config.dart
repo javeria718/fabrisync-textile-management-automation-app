@@ -130,6 +130,18 @@ class CurtainRuntimeConfig {
   final double qualityQcMultiplier;
 
   /// Creates runtime config from cost config and other specs
+  ///
+  /// CRITICAL: Curtain calculations cannot be migrated to use database labor_multiplier
+  /// as the sole multiplier source because:
+  ///
+  /// 1. Database curtain_cost_config lacks quality_grade dimension
+  /// 2. labor_multiplier field represents FABRIC MULTIPLIER ONLY (1.00, 1.25, 1.45)
+  /// 3. Quality-grade labor multipliers (1.00, 1.15, 1.35) are applied at runtime from static rules
+  /// 4. If database multiplier were used alone, quality adjustments would be LOST
+  /// 5. This would cause 13-26% underpricing on Standard and Premium quality orders
+  ///
+  /// Migration is deferred until curtain_cost_config is expanded to include quality_grade.
+  /// See PARITY_AUDIT_RESULTS.md for detailed analysis.
   factory CurtainRuntimeConfig.from({
     required CurtainCostConfig config,
     required String qualityGrade,

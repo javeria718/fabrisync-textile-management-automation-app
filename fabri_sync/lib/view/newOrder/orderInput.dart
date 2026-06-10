@@ -278,13 +278,13 @@ class _OrderInputScreenState extends State<OrderInputScreen> {
       child = OrderFieldWrap(
         children: [
           OrderTextInputField(
-            label: 'Length',
+            label: 'Length (m)',
             icon: Icons.height_outlined,
             controller: controller.lengthCtrl,
             keyboardType: TextInputType.number,
           ),
           OrderTextInputField(
-            label: 'Width',
+            label: 'Width (m)',
             icon: Icons.straighten_outlined,
             controller: controller.widthCtrl,
             keyboardType: TextInputType.number,

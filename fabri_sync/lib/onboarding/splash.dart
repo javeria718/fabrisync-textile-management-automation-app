@@ -1,5 +1,4 @@
 import 'package:fabri_sync/onboarding/welcome.dart';
-import 'package:fabri_sync/utils/customcolors.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 

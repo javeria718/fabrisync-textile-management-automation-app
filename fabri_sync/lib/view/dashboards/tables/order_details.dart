@@ -385,20 +385,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             fontSize: rowFont,
           ),
           if ((order.specialInstructions ?? '').trim().isNotEmpty)
-            _row(
-              "Instructions",
-              order.specialInstructions!,
-              fontSize: rowFont,
-            ),
+            _row("Instructions", order.specialInstructions!, fontSize: rowFont),
           if (specs.isNotEmpty) ...[
             const Divider(color: AppColors.divider),
-            ...specs.map(
-              (e) => _row(
-                _prettyKey(e.key),
-                e.value is bool ? ((e.value as bool) ? "Yes" : "No") : e.value.toString(),
-                fontSize: rowFont,
-              ),
-            ),
+            ...specs.map((e) {
+              var displayValue = e.value is bool
+                  ? ((e.value as bool) ? "Yes" : "No")
+                  : e.value.toString();
+              // Add unit suffix for curtain dimensions
+              if (order.productCategory == 'Curtain' &&
+                  (e.key == 'length' || e.key == 'width')) {
+                displayValue = '$displayValue m';
+              }
+              return _row(_prettyKey(e.key), displayValue, fontSize: rowFont);
+            }),
           ],
         ],
       ),
@@ -423,13 +423,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _row("Material", "PKR ${numValue('material_total_cost').toStringAsFixed(0)}", fontSize: rowFont),
-          _row("Labor", "PKR ${numValue('labor_total_cost').toStringAsFixed(0)}", fontSize: rowFont),
-          _row("Processing", "PKR ${numValue('processing_total_cost').toStringAsFixed(0)}", fontSize: rowFont),
-          _row("Additional", "PKR ${numValue('additional_total_cost').toStringAsFixed(0)}", fontSize: rowFont),
-          _row("Rush Charges", "PKR ${numValue('rush_charges').toStringAsFixed(0)}", fontSize: rowFont),
+          _row(
+            "Material",
+            "PKR ${numValue('material_total_cost').toStringAsFixed(0)}",
+            fontSize: rowFont,
+          ),
+          _row(
+            "Labor",
+            "PKR ${numValue('labor_total_cost').toStringAsFixed(0)}",
+            fontSize: rowFont,
+          ),
+          _row(
+            "Processing",
+            "PKR ${numValue('processing_total_cost').toStringAsFixed(0)}",
+            fontSize: rowFont,
+          ),
+          _row(
+            "Additional",
+            "PKR ${numValue('additional_total_cost').toStringAsFixed(0)}",
+            fontSize: rowFont,
+          ),
+          _row(
+            "Rush Charges",
+            "PKR ${numValue('rush_charges').toStringAsFixed(0)}",
+            fontSize: rowFont,
+          ),
           const Divider(color: AppColors.divider),
-          _row("Estimated Total", "PKR ${numValue('estimated_total_cost').toStringAsFixed(0)}", fontSize: rowFont),
+          _row(
+            "Estimated Total",
+            "PKR ${numValue('estimated_total_cost').toStringAsFixed(0)}",
+            fontSize: rowFont,
+          ),
         ],
       ),
     );
@@ -525,7 +549,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-        initiallyExpanded: department == _normalizeDepartment(order.currentDepartment),
+        initiallyExpanded:
+            department == _normalizeDepartment(order.currentDepartment),
         title: Text(
           _departmentLabel(department),
           style: const TextStyle(
@@ -555,7 +580,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   _miniChip("Total", "$total"),
                   _miniChip("Completed", "$completed"),
                   _miniChip("Pending", "$pending"),
-                  _miniChip("Progress", "${(progress * 100).toStringAsFixed(0)}%"),
+                  _miniChip(
+                    "Progress",
+                    "${(progress * 100).toStringAsFixed(0)}%",
+                  ),
                   _miniChip("Status", _statusLabel(schedule?['status'])),
                 ],
               ),

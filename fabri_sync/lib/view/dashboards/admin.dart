@@ -1,4 +1,3 @@
-import 'package:fabri_sync/auth/login/login_page.dart';
 import 'package:fabri_sync/controllers/admin_controller.dart';
 import 'package:fabri_sync/services/auth_navigation_service.dart';
 import 'package:fabri_sync/utils/customcolors.dart';

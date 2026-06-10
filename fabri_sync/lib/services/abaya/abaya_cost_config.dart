@@ -98,6 +98,7 @@ class AbayaRuntimeConfig {
     required this.fabricStitchingDifficulty,
     required this.fabricIroningDifficulty,
     required this.qualityQcComplexity,
+    required this.laborMultiplier,
   });
 
   final String abayaType;
@@ -120,6 +121,11 @@ class AbayaRuntimeConfig {
   final double fabricStitchingDifficulty;
   final double fabricIroningDifficulty;
   final double qualityQcComplexity;
+
+  /// Pre-calculated combined labor multiplier from database.
+  /// Represents: typeComplexity × fabricLaborMultiplier × qualityLaborMultiplier
+  /// Migrated from static calculation to database source for consistency.
+  final double laborMultiplier;
 
   factory AbayaRuntimeConfig.from({
     required AbayaCostConfig config,
@@ -157,6 +163,7 @@ class AbayaRuntimeConfig {
       qualityQcComplexity:
           (typeConfig?.qcComplexity ?? 1.0) *
           (fabricConfig?.qcComplexity ?? 1.0),
+      laborMultiplier: config.laborMultiplier,
     );
   }
 

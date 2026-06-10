@@ -99,11 +99,9 @@ class AbayaCalculationService {
   AbayaCalculationService({
     AbayaCostRepository? repository,
     SupabaseClient? client,
-  }) : _repository = repository ?? AbayaCostRepository(client: client),
-       _client = client ?? Supabase.instance.client;
+  }) : _repository = repository ?? AbayaCostRepository(client: client);
 
   final AbayaCostRepository _repository;
-  final SupabaseClient _client;
 
   Future<CalculationResult> calculateAbayaEstimate(
     AbayaCalculationRequest request,
@@ -161,9 +159,6 @@ class AbayaCalculationService {
     final typeConfig = AbayaPricingRules.getAbayaTypeConfig(
       normalizedAbayaType,
     )!;
-    final qualityConfig = AbayaPricingRules.getQualityGradeConfig(
-      request.qualityGrade,
-    )!;
     final quantityEfficiency = AbayaPricingRules.getQuantityEfficiencyRule(
       request.quantity,
     );
@@ -181,10 +176,16 @@ class AbayaCalculationService {
     final fabricDifficultyHours =
         stitchingBaseHours * (fabricConfig.stitchingDifficulty - 1.0) * 0.25;
 
+    /// MIGRATION: Use database labor_multiplier instead of computing from static rules.
+    /// Database value: laborMultiplier = typeComplexity × fabricLaborMultiplier × qualityLaborMultiplier
+    /// To avoid double-applying typeComplexity (already in stitchingBaseHours),
+    /// divide database value by typeComplexity to extract (fabric × quality) portion only.
+    final combinedFabricQualityMultiplier =
+        config.laborMultiplier / config.typeComplexity;
+
     var laborHoursPerUnit =
         (stitchingBaseHours + finishingBaseHours) *
-        config.fabricLaborMultiplier *
-        config.qualityLaborMultiplier *
+        combinedFabricQualityMultiplier *
         config.sizeStitchingMultiplier;
 
     laborHoursPerUnit += embellishmentHours;

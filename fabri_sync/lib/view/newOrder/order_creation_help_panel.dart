@@ -93,11 +93,25 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   Widget _buildPanelAppBar(ProductHelpCatalog catalog) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
+    final isSmallPhone = screenWidth < 400;
 
     // Responsive font sizing
-    final titleFontSize = isMobile ? 16.0 : 20.0;
-    final subtitleFontSize = isMobile ? 11.0 : 13.0;
-    final appBarHeight = isMobile ? 100.0 : 110.0;
+    final titleFontSize = isSmallPhone
+        ? 14.0
+        : isMobile
+        ? 16.0
+        : 20.0;
+    final subtitleFontSize = isSmallPhone
+        ? 10.0
+        : isMobile
+        ? 11.0
+        : 13.0;
+    // Dynamic appBarHeight based on content
+    final appBarHeight = isSmallPhone
+        ? 120.0
+        : isMobile
+        ? 115.0
+        : 140.0;
 
     return AppBar(
       backgroundColor: AppColors.surface,
@@ -106,8 +120,8 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
       centerTitle: true,
       automaticallyImplyLeading: false,
       toolbarHeight: appBarHeight,
-      title: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+      title: Padding(
+        padding: EdgeInsets.symmetric(horizontal: isSmallPhone ? 8.0 : 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -119,24 +133,20 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
                 fontWeight: FontWeight.bold,
                 fontSize: titleFontSize,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              overflow: TextOverflow.visible,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 4),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: screenWidth - 100, // Reserve space for actions
+            const SizedBox(height: 6),
+            Text(
+              'Live configuration, formula transparency, and costing insight',
+              style: TextStyle(
+                color: AppColors.secondaryText,
+                fontSize: subtitleFontSize,
               ),
-              child: Text(
-                'Live configuration, formula transparency, and costing insight',
-                style: TextStyle(
-                  color: AppColors.secondaryText,
-                  fontSize: subtitleFontSize,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
+              maxLines: 3,
+              overflow: TextOverflow.visible,
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -147,11 +157,13 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
           color: AppColors.primaryText,
           tooltip: 'Refresh guide data',
           onPressed: _refreshCatalog,
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 4.0 : 8.0),
         ),
         IconButton(
           icon: const Icon(Icons.close, color: AppColors.primaryText),
           onPressed: () => Navigator.of(context).maybePop(),
           tooltip: 'Close',
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 4.0 : 8.0),
         ),
       ],
       bottom: PreferredSize(
@@ -181,11 +193,25 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   Widget _buildCategoryContent(ProductHelpCategoryData data) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
+    final isSmallPhone = screenWidth < 400;
 
     // Responsive padding
-    final horizontalPadding = isMobile ? 14.0 : 20.0;
-    final titleFontSize = isMobile ? 20.0 : 24.0;
-    final summaryFontSize = isMobile ? 12.0 : 14.0;
+    final horizontalPadding = isSmallPhone
+        ? 10.0
+        : isMobile
+        ? 14.0
+        : 20.0;
+    final titleFontSize = isSmallPhone
+        ? 18.0
+        : isMobile
+        ? 20.0
+        : 24.0;
+    final summaryFontSize = isSmallPhone
+        ? 11.0
+        : isMobile
+        ? 12.0
+        : 14.0;
+    final sectionHeaderSize = isSmallPhone ? 14.0 : 16.0;
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
@@ -217,32 +243,40 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
             softWrap: true,
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader('Product Types', icon: Icons.category_outlined),
+          _buildSectionHeader(
+            'Product Types',
+            icon: Icons.category_outlined,
+            fontSize: sectionHeaderSize,
+          ),
           _buildOptionList(data.productTypes),
           const SizedBox(height: 20),
           _buildSectionHeader(
             'Available Specifications',
             icon: Icons.settings_outlined,
+            fontSize: sectionHeaderSize,
           ),
           ...data.specificationGroups.map(
-            (group) => _buildSpecificationGroup(group),
+            (group) => _buildSpecificationGroup(group, sectionHeaderSize),
           ),
           const SizedBox(height: 20),
           _buildSectionHeader(
             'Dynamic Rates & Costs',
             icon: Icons.attach_money_outlined,
+            fontSize: sectionHeaderSize,
           ),
           _buildConfigEntries(data.configEntries),
           const SizedBox(height: 20),
           _buildSectionHeader(
             'Time Estimation Logic',
             icon: Icons.access_time_outlined,
+            fontSize: sectionHeaderSize,
           ),
           _buildBulletedList(data.timeLogicHighlights),
           const SizedBox(height: 20),
           _buildSectionHeader(
             'Formula Transparency',
             icon: Icons.code_outlined,
+            fontSize: sectionHeaderSize,
           ),
           _buildBulletedList(data.formulaRows),
         ],
@@ -250,17 +284,24 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
     );
   }
 
-  Widget _buildSectionHeader(String title, {required IconData icon}) {
+  Widget _buildSectionHeader(
+    String title, {
+    required IconData icon,
+    double fontSize = 16.0,
+  }) {
     return Row(
       children: [
         Icon(icon, color: AppColors.primaryAccent, size: 20),
         const SizedBox(width: 10),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primaryText,
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primaryText,
+            ),
+            softWrap: true,
           ),
         ),
       ],
@@ -268,57 +309,114 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   }
 
   Widget _buildOptionList(List<HelpOption> options) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final isSmallPhone = screenWidth < 400;
+
+    // Responsive grid layout
+    final crossAxisCount = isSmallPhone
+        ? 1
+        : isMobile
+        ? 2
+        : 3;
+    final spacing = isSmallPhone
+        ? 10.0
+        : isMobile
+        ? 12.0
+        : 14.0;
+
+    if (options.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // For mobile/tablet: use Wrap for responsive grid
+    if (isMobile) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: isSmallPhone ? 0.0 : 0.0),
+        child: Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          alignment: WrapAlignment.start,
+          children: options
+              .map(
+                (option) => SizedBox(
+                  width:
+                      (screenWidth - (crossAxisCount + 1) * spacing) /
+                      crossAxisCount,
+                  child: _buildOptionCard(option, isSmallPhone),
+                ),
+              )
+              .toList(),
+        ),
+      );
+    }
+
+    // For desktop: use column for better readability
     return Column(
       children: options
-          .map(
-            (option) => Container(
-              margin: const EdgeInsets.only(top: 10),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    option.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    option.description,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.secondaryText,
-                    ),
-                  ),
-                  if (option.details != null && option.details!.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    _buildDetailsGrid(option.details!),
-                  ],
-                ],
-              ),
-            ),
-          )
+          .map((option) => _buildOptionCard(option, isSmallPhone))
           .toList(),
     );
   }
 
-  Widget _buildSpecificationGroup(HelpOptionGroup group) {
+  Widget _buildOptionCard(HelpOption option, bool isSmallPhone) {
+    return Container(
+      margin: EdgeInsets.only(top: isSmallPhone ? 8.0 : 10.0),
+      padding: EdgeInsets.all(isSmallPhone ? 12.0 : 16.0),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            option.name,
+            style: TextStyle(
+              fontSize: isSmallPhone ? 13.0 : 15.0,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryText,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            option.description,
+            style: TextStyle(
+              fontSize: isSmallPhone ? 12.0 : 13.0,
+              color: AppColors.secondaryText,
+              height: 1.4,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (option.details != null && option.details!.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _buildDetailsGrid(option.details!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpecificationGroup(
+    HelpOptionGroup group,
+    double sectionHeaderFontSize,
+  ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallPhone = screenWidth < 400;
+    final groupTitleFontSize = isSmallPhone ? 13.0 : 14.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 14),
         Text(
           group.title,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: groupTitleFontSize,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryText,
           ),
@@ -330,12 +428,19 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   }
 
   Widget _buildConfigEntries(List<ProductHelpConfigEntry> entries) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallPhone = screenWidth < 400;
+    final isMobile = screenWidth < 600;
+
     if (entries.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
           'No live configuration records are available. Check the Supabase config tables for this category.',
-          style: TextStyle(color: AppColors.secondaryText),
+          style: TextStyle(
+            color: AppColors.secondaryText,
+            fontSize: isSmallPhone ? 12.0 : 13.0,
+          ),
         ),
       );
     }
@@ -344,8 +449,8 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
       children: entries
           .map(
             (entry) => Container(
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.all(16),
+              margin: EdgeInsets.only(top: isSmallPhone ? 10.0 : 12.0),
+              padding: EdgeInsets.all(isSmallPhone ? 12.0 : 16.0),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(14),
@@ -356,8 +461,8 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
                 children: [
                   Text(
                     entry.title,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: isSmallPhone ? 13.0 : 14.0,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primaryText,
                     ),
@@ -366,31 +471,55 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
                   ...entry.values.entries.map(
                     (value) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              value.key,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.secondaryText,
-                              ),
+                      child: isMobile
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  value.key,
+                                  style: TextStyle(
+                                    fontSize: isSmallPhone ? 12.0 : 13.0,
+                                    color: AppColors.secondaryText,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  value.value is double
+                                      ? value.value.toStringAsFixed(2)
+                                      : value.value.toString(),
+                                  style: TextStyle(
+                                    fontSize: isSmallPhone ? 12.0 : 13.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primaryText,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    value.key,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.secondaryText,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  value.value is double
+                                      ? value.value.toStringAsFixed(2)
+                                      : value.value.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primaryText,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            value.value is double
-                                ? value.value.toStringAsFixed(2)
-                                : value.value.toString(),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryText,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ],
@@ -402,12 +531,16 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   }
 
   Widget _buildBulletedList(List<String> items) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallPhone = screenWidth < 400;
+    final fontSize = isSmallPhone ? 13.0 : 14.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: items
           .map(
             (item) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
+              padding: EdgeInsets.symmetric(vertical: isSmallPhone ? 5.0 : 6.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -421,8 +554,8 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
                   Expanded(
                     child: Text(
                       item,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: fontSize,
                         color: AppColors.primaryText,
                         height: 1.5,
                       ),
@@ -437,13 +570,21 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
   }
 
   Widget _buildDetailsGrid(Map<String, dynamic> details) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallPhone = screenWidth < 400;
+    final spacing = isSmallPhone ? 8.0 : 12.0;
+    final fontSize = isSmallPhone ? 11.0 : 12.0;
+
     return Wrap(
-      spacing: 12,
-      runSpacing: 8,
+      spacing: spacing,
+      runSpacing: spacing,
       children: details.entries
           .map(
             (entry) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallPhone ? 8.0 : 10.0,
+                vertical: isSmallPhone ? 6.0 : 8.0,
+              ),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(10),
@@ -451,8 +592,8 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
               ),
               child: Text(
                 '${entry.key}: ${entry.value}',
-                style: const TextStyle(
-                  fontSize: 12,
+                style: TextStyle(
+                  fontSize: fontSize,
                   color: AppColors.primaryText,
                 ),
               ),

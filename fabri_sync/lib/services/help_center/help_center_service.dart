@@ -78,13 +78,21 @@ class HelpCenterService {
         )
         .toList();
 
-    final fabricOptions = CurtainPricingRules.fabricTypeConfigs.entries
+    // Extract unique fabric types from live configs
+    final fabricTypeMap = <String, CurtainCostConfig>{};
+    for (final config in configs) {
+      if (!fabricTypeMap.containsKey(config.fabricType)) {
+        fabricTypeMap[config.fabricType] = config;
+      }
+    }
+
+    final fabricOptions = fabricTypeMap.entries
         .map(
           (entry) => HelpOption(
             name: entry.key,
-            description: entry.value.description,
+            description: '',
             details: {
-              'Material Rate': entry.value.materialRatePerSqMeter,
+              'Material Rate': entry.value.materialRate,
               'Labor Multiplier': entry.value.laborMultiplier,
               'Wastage %': entry.value.wastagePercent,
             },
@@ -193,13 +201,21 @@ class HelpCenterService {
         )
         .toList();
 
-    final fabricOptions = AbayaPricingRules.fabricTypeConfigs.entries
+    // Extract unique fabric types from live configs
+    final fabricTypeMap = <String, AbayaCostConfig>{};
+    for (final config in configs) {
+      if (!fabricTypeMap.containsKey(config.fabricType)) {
+        fabricTypeMap[config.fabricType] = config;
+      }
+    }
+
+    final fabricOptions = fabricTypeMap.entries
         .map(
           (entry) => HelpOption(
             name: entry.key,
-            description: entry.value.description,
+            description: '',
             details: {
-              'Fabric Rate': entry.value.fabricRatePerMeter,
+              'Fabric Rate': entry.value.fabricRate,
               'Labor Multiplier': entry.value.laborMultiplier,
               'Wastage %': entry.value.wastagePercent,
             },
@@ -291,13 +307,21 @@ class HelpCenterService {
         )
         .toList();
 
-    final fabricOptions = BedsheetPricingRules.fabricTypeConfigs.entries
+    // Extract unique fabric types from live configs
+    final fabricTypeMap = <String, BedsheetCostConfig>{};
+    for (final config in configs) {
+      if (!fabricTypeMap.containsKey(config.fabricType)) {
+        fabricTypeMap[config.fabricType] = config;
+      }
+    }
+
+    final fabricOptions = fabricTypeMap.entries
         .map(
           (entry) => HelpOption(
             name: entry.key,
-            description: entry.value.description,
+            description: '',
             details: {
-              'Material Rate': entry.value.fabricRatePerMeter,
+              'Material Rate': entry.value.materialRate,
               'Labor Multiplier': entry.value.laborMultiplier,
               'Wastage %': entry.value.wastagePercent,
             },
@@ -335,8 +359,9 @@ class HelpCenterService {
     final configEntries = configs.map((config) {
       return ProductHelpConfigEntry(
         title:
-            '${config.bedsheetType} • ${config.fabricType} • ${config.bedSize}',
+            '${config.bedsheetType} • ${config.fabricType} • ${config.bedSize} • ${config.qualityGrade}',
         values: {
+          'Quality Grade': config.qualityGrade,
           'Material Rate (PKR/m)': config.materialRate,
           'Base Labor Hours': config.baseLaborHours,
           'Labor Multiplier': config.laborMultiplier,

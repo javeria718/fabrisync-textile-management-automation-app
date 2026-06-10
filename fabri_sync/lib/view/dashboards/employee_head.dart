@@ -640,6 +640,7 @@ class _HeaderFloatingPanel extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _AlertPanelContent extends StatelessWidget {
   final List<EmployeeHeadOrder> lateOrders;
 

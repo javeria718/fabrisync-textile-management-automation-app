@@ -355,15 +355,17 @@ class _ManagerOrderDetailsScreenState extends State<ManagerOrderDetailsScreen> {
             _row("Instructions", order.specialInstructions!, fontSize: rowFont),
           if (specs.isNotEmpty) ...[
             const Divider(color: AppColors.divider),
-            ...specs.map(
-              (e) => _row(
-                _prettyKey(e.key),
-                e.value is bool
-                    ? ((e.value as bool) ? "Yes" : "No")
-                    : e.value.toString(),
-                fontSize: rowFont,
-              ),
-            ),
+            ...specs.map((e) {
+              var displayValue = e.value is bool
+                  ? ((e.value as bool) ? "Yes" : "No")
+                  : e.value.toString();
+              // Add unit suffix for curtain dimensions
+              if (order.productCategory == 'Curtain' &&
+                  (e.key == 'length' || e.key == 'width')) {
+                displayValue = '$displayValue m';
+              }
+              return _row(_prettyKey(e.key), displayValue, fontSize: rowFont);
+            }),
           ],
         ],
       ),

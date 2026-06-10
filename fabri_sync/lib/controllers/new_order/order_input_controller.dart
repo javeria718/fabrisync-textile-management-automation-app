@@ -519,23 +519,23 @@ class OrderInputController extends ChangeNotifier {
 
         // Validate dimensions
         if (lengthCtrl.text.trim().isEmpty) {
-          return 'Enter curtain length (in meters)';
+          return 'Please enter curtain length in meters (m)';
         }
         if (length <= 0) {
-          return 'Curtain length must be greater than 0';
+          return 'Curtain length must be greater than 0 m';
         }
         if (length > 10) {
-          return 'Curtain length cannot exceed 10 meters';
+          return 'Maximum curtain length is 10 m';
         }
 
         if (widthCtrl.text.trim().isEmpty) {
-          return 'Enter curtain width (in meters)';
+          return 'Please enter curtain width in meters (m)';
         }
         if (width <= 0) {
-          return 'Curtain width must be greater than 0';
+          return 'Curtain width must be greater than 0 m';
         }
         if (width > 5) {
-          return 'Curtain width cannot exceed 5 meters';
+          return 'Maximum curtain width is 5 m';
         }
 
         // Validate fabric and header

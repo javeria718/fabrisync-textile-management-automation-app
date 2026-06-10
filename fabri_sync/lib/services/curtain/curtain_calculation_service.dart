@@ -105,11 +105,9 @@ class CurtainCalculationService {
   CurtainCalculationService({
     CurtainCostRepository? repository,
     SupabaseClient? client,
-  }) : _repository = repository ?? CurtainCostRepository(client: client),
-       _client = client ?? Supabase.instance.client;
+  }) : _repository = repository ?? CurtainCostRepository(client: client);
 
   final CurtainCostRepository _repository;
-  final SupabaseClient _client;
 
   // ============================================================================
   // MAIN CALCULATION ENTRYPOINT
@@ -173,8 +171,6 @@ class CurtainCalculationService {
     final fabricAreaPerUnit = request.length * request.width;
     final wastagePercent = config.wastagePercent / 100;
     final effectiveFabricAreaPerUnit = fabricAreaPerUnit * (1 + wastagePercent);
-    final effectiveFabricAreaTotal =
-        effectiveFabricAreaPerUnit * request.quantity;
 
     // === MATERIAL COST ===
     final materialCostPerUnit =
@@ -203,6 +199,15 @@ class CurtainCalculationService {
     );
 
     // Calculate per-unit labor hours
+    /// IMPORTANT: Curtain labor multiplier INCLUDES quality grade adjustment.
+    /// config.totalLaborMultiplier = fabricMultiplier × qualityMultiplier
+    ///
+    /// The database curtain_cost_config.labor_multiplier contains ONLY fabric multiplier.
+    /// Quality-grade multipliers are intentionally applied separately from static rules.
+    ///
+    /// DO NOT replace this logic with database labor_multiplier alone - it would lose
+    /// quality adjustments and cause 13-26% underpricing on premium quality orders.
+    /// See PARITY_AUDIT_RESULTS.md for detailed analysis.
     var laborHoursPerUnit =
         (baseLaborHours + headerLaborHours) *
         config.totalLaborMultiplier *

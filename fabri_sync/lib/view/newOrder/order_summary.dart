@@ -583,10 +583,15 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 icon: Icons.tune_outlined,
                 child: Column(
                   children: controller.buildSpecifications().entries.map((e) {
-                    final value = e.value is bool
+                    var displayValue = e.value is bool
                         ? ((e.value as bool) ? 'Yes' : 'No')
                         : e.value.toString();
-                    return _row(_prettyKey(e.key), value);
+                    // Add unit suffix for curtain dimensions
+                    if (controller.productCategory == 'Curtain' &&
+                        (e.key == 'length' || e.key == 'width')) {
+                      displayValue = '$displayValue m';
+                    }
+                    return _row(_prettyKey(e.key), displayValue);
                   }).toList(),
                 ),
               ),

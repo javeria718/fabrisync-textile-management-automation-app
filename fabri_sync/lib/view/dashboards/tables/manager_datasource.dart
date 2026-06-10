@@ -208,12 +208,6 @@ class ManagerOrdersDataSource extends DataTableSource {
     );
   }
 
-  String _formatHours(OrderSummaryModel order) {
-    final hours = order.estimatedProductionHours ?? order.estimatedTotalTime;
-    if (hours == null) return '-';
-    return formatWorkDuration(hours);
-  }
-
   String _statusLabel(String? value) {
     final status = (value ?? '').trim().toLowerCase();
     if (status.isEmpty) return '-';

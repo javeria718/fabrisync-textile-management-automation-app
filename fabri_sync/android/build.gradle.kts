@@ -10,11 +10,6 @@ buildscript {
         mavenCentral()
     }
 
-    dependencies {
-        // Add the Google Services classpath
-        classpath("com.google.gms:google-services:4.4.0")
-
-    }
 }
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory

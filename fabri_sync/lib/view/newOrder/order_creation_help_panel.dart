@@ -79,10 +79,7 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
           initialIndex: _selectedTabIndex,
           child: Scaffold(
             backgroundColor: AppColors.surface,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(92),
-              child: _buildPanelAppBar(catalog),
-            ),
+            appBar: _buildPanelAppBar(catalog),
             body: _buildBody(catalog),
           ),
         );
@@ -90,7 +87,7 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
     );
   }
 
-  Widget _buildPanelAppBar(ProductHelpCatalog catalog) {
+  PreferredSizeWidget _buildPanelAppBar(ProductHelpCatalog catalog) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
     final isSmallPhone = screenWidth < 400;
@@ -117,6 +114,10 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      shadowColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        side: BorderSide(color: Colors.transparent),
+      ),
       centerTitle: true,
       automaticallyImplyLeading: false,
       toolbarHeight: appBarHeight,
@@ -138,16 +139,19 @@ class _OrderCreationHelpPanelState extends State<OrderCreationHelpPanel> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
-            Text(
-              'Live configuration, formula transparency, and costing insight',
-              style: TextStyle(
-                color: AppColors.secondaryText,
-                fontSize: subtitleFontSize,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.visible,
-              textAlign: TextAlign.center,
-            ),
+       Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16),
+  child: Text(
+    'Live configuration, formula transparency, and costing insight',
+    textAlign: TextAlign.center,
+    maxLines: 3,
+    softWrap: true,
+    style: TextStyle(
+      color: AppColors.secondaryText,
+      fontSize: subtitleFontSize,
+    ),
+  ),
+),
           ],
         ),
       ),

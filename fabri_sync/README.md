@@ -362,28 +362,24 @@ flutter pub get
 
 This project uses **build-time environment variables (dart-define)**.
 
-They are NOT stored in a .env file for web builds.
+Environment variables are injected during build time and are not stored in runtime .env files for web builds.
 
-### Build for Web
+## Configuration Files
 
-```bash
-flutter build web --release --dart-define=SUPABASE_URL=your_supabase_url --dart-define=SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+For local development, environment variables are managed using:
+config/dev.env.json
 
-### Build for Android
-
-```bash
-flutter build apk --release
-```
+For production builds:
+config/prod.env.json
 
 ---
 
 ## Running the Project
 
-### Run on Web
+### Run on Web Locally
 
 ```bash
-flutter run -d chrome --dart-define=SUPABASE_URL=your_supabase_url --dart-define=SUPABASE_ANON_KEY=your_supabase_anon_key
+flutter run -d chrome --dart-define-from-file=config/dev.env.json
 ```
 
 ### Run on Android
@@ -401,18 +397,17 @@ flutter run
 1. Build the application using `flutter build web`.
 2. Upload the contents of the `build/web` folder.
 3. Configure SPA redirect rules.
-4. 1. Run build command locally:
+4. Run build command locally:
 
 ```bash
-flutter build web --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+flutter build web --release --dart-define-from-file=config/prod.env.json
+```
 
-### Android APK
+### Android APK(Production Build)
 
 ```bash
 flutter build apk --release
 ```
-
-Sign and distribute the APK using standard Android tooling.
 
 ---
 

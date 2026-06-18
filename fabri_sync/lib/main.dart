@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:fabri_sync/onboarding/role_selection_screen.dart';
 import 'package:fabri_sync/onboarding/splash.dart';
@@ -11,7 +10,6 @@ import 'package:fabri_sync/view/dashboards/manager.dart';
 import 'package:fabri_sync/services/auth_navigation_service.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -19,12 +17,20 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: ".env");
-  final supabaseUrl = dotenv.env['SUPABASE_URL'];
-  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
-  if (supabaseUrl == null || supabaseAnonKey == null) {
+  // Load Supabase credentials from build-time environment variables (dart-define)
+  // This approach prevents credentials from being exposed in the web build
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue: '',
+  );
+
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
     throw StateError(
-      'Missing Supabase env vars (SUPABASE_URL, SUPABASE_ANON_KEY)',
+      'Missing Supabase env vars. Build with: '
+      'flutter build web '
+      '--dart-define=SUPABASE_URL=<url> '
+      '--dart-define=SUPABASE_ANON_KEY=<key>',
     );
   }
 

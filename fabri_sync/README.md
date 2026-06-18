@@ -198,7 +198,7 @@ The Admin activity diagram outlines the process of logging in, creating orders, 
 ### Manager Activity Diagram
 
 <p align="center">
-  <img src="assets/diagrams/ManagerActivity.png" width="500" alt="Manager Activity Diagram">
+  <img src="assets/diagrams/ManagerActivity.png" width="300" alt="Manager Activity Diagram">
 </p>
 
 The Manager activity diagram illustrates how department managers review assigned orders, monitor progress, and coordinate workflow execution.

@@ -1,4 +1,0 @@
-table_name,trigger_name,action_timing,event_manipulation,action_statement
-department_orders,trg_next_department,AFTER,UPDATE,EXECUTE FUNCTION move_to_next_department()
-ordersmain,trg_first_department,AFTER,INSERT,EXECUTE FUNCTION insert_first_department()
-profiles,trg_delete_auth_on_profile_delete,AFTER,DELETE,EXECUTE FUNCTION delete_auth_user_on_profile_delete()

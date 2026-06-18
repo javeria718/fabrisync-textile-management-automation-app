@@ -93,7 +93,7 @@ The application combines a **Flutter frontend** with a **Supabase backend** to d
 ### Admin Use Case Diagram
 
 <p align="center">
-  <img src="fabri_sync/assets/diagrams/admin-usecase.png" width="900" alt="Admin Use Case Diagram">
+  <img src="assets/diagrams/admin-usecase.png" width="900" alt="Admin Use Case Diagram">
 </p>
 
 The Admin manages users, creates orders, monitors production workflows, configures costing parameters, tracks department progress, and views analytics dashboards.
@@ -103,7 +103,7 @@ The Admin manages users, creates orders, monitors production workflows, configur
 ### Manager Use Case Diagram
 
 <p align="center">
-  <img src="fabri_sync/assets/diagrams/manager-use-case.png" width="900" alt="Manager Use Case Diagram">
+  <img src="assets/diagrams/manager-use-case.png" width="900" alt="Manager Use Case Diagram">
 </p>
 
 The Manager supervises department workflows, reviews assigned orders, monitors production progress, and tracks departmental performance.
@@ -113,7 +113,7 @@ The Manager supervises department workflows, reviews assigned orders, monitors p
 ### Employee Head Use Case Diagram
 
 <p align="center">
-  <img src="fabri_sync/assets/diagrams/Employee-Head-usecase.drawio.png" width="900" alt="Employee Head Use Case Diagram">
+  <img src="assets/diagrams/Employee-Head-usecase.drawio.png" width="900" alt="Employee Head Use Case Diagram">
 </p>
 
 The Employee Head updates item-level progress, marks tasks as completed, records delay reasons, and manages department-specific production activities.
@@ -123,7 +123,7 @@ The Employee Head updates item-level progress, marks tasks as completed, records
 ## System Architecture Diagram
 
 <p align="center">
-  <img src="fabri_sync/assets/diagrams/system-diagram.png" width="900" alt="System Architecture Diagram">
+  <img src="assets/diagrams/system-diagram.png" width="900" alt="System Architecture Diagram">
 </p>
 
 The system architecture illustrates the interaction between the Flutter frontend, Supabase backend, authentication layer, business services, and database components.
@@ -133,7 +133,7 @@ The system architecture illustrates the interaction between the Flutter frontend
 ## Class Diagram
 
 <p align="center">
-  <img src="fabri_sync/assets/diagrams/CLASS.drawio.png" width="900" alt="Class Diagram">
+  <img src="assets/diagrams/CLASS.drawio.png" width="900" alt="Class Diagram">
 </p>
 
 The class diagram presents the relationships between controllers, services, models, and core entities using associations, compositions, and inheritance.
@@ -143,10 +143,75 @@ The class diagram presents the relationships between controllers, services, mode
 ## Entity Relationship Diagram (ERD)
 
 <p align="center">
-  <img src="fabri_sync/assets/diagrams/erd-diagram.png" width="900" alt="Entity Relationship Diagram">
+  <img src="assets/diagrams/erd-diagram.png" width="900" alt="Entity Relationship Diagram">
 </p>
 
 The ERD represents the database schema, including orders, users, workflows, departments, and cost configuration tables.
+## Sequence Diagrams
+
+Sequence diagrams illustrate the interaction flow between system actors, controllers, services, and the database during key operations.
+
+### Admin Sequence Diagram
+
+<p align="center">
+  <img src="assets/diagrams/admin-sequence.png" width="900" alt="Admin Sequence Diagram">
+</p>
+
+The Admin sequence diagram demonstrates the process of authentication, order creation, cost estimation, workflow initialization, and dashboard monitoring.
+
+---
+
+### Manager Sequence Diagram
+
+<p align="center">
+  <img src="assets/diagrams/manager-sequence.png" width="900" alt="Manager Sequence Diagram">
+</p>
+
+The Manager sequence diagram illustrates how managers retrieve department-specific orders, monitor workflow progress, and update production statuses.
+
+---
+
+### Employee Head Sequence Diagram
+
+<p align="center">
+  <img src="assets/diagrams/employee-sequence.png" width="900" alt="Employee Head Sequence Diagram">
+</p>
+
+The Employee Head sequence diagram represents item-level progress updates, task completion workflows, delay remark submission, and department completion handling.
+
+---
+
+## Activity Diagrams
+
+Activity diagrams describe the step-by-step workflows performed by each system role.
+
+### Admin Activity Diagram
+
+<p align="center">
+  <img src="assets/diagrams/AdminActivity.png" width="900" alt="Admin Activity Diagram">
+</p>
+
+The Admin activity diagram outlines the process of logging in, creating orders, configuring cost parameters, monitoring production workflows, and reviewing analytics.
+
+---
+
+### Manager Activity Diagram
+
+<p align="center">
+  <img src="assets/diagrams/ManagerActivity.png" width="900" alt="Manager Activity Diagram">
+</p>
+
+The Manager activity diagram illustrates how department managers review assigned orders, monitor progress, and coordinate workflow execution.
+
+---
+
+### Employee Head Activity Diagram
+
+<p align="center">
+  <img src="assets/diagrams/EmployeeActivity.png" width="900" alt="Employee Head Activity Diagram">
+</p>
+
+The Employee Head activity diagram shows the workflow for updating item statuses, recording delays, completing department tasks, and progressing orders to the next department.
 
 ## System Architecture
 
@@ -355,59 +420,59 @@ Sign and distribute the APK using standard Android tooling.
 
 ### Authentication & Onboarding
 
-![Splash Screen](fabri_sync/assets/app-screenshots/splash-screen.jpeg)
-![Welcome Screen](fabri_sync/assets/app-screenshots/welcome-screen.jpeg)
-![Role Selection](fabri_sync/assets/app-screenshots/role-selection.jpeg)
-![Login Screen Admin](fabri_sync/assets/app-screenshots/login-screen-admin.jpeg)
-![Manager Login](fabri_sync/assets/app-screenshots/manager-login.png)
-![Employee Head Login](fabri_sync/assets/app-screenshots/employee-head-login.png)
+![Splash Screen](assets/app-screenshots/splash-screen.jpeg)
+![Welcome Screen](assets/app-screenshots/welcome-screen.jpeg)
+![Role Selection](assets/app-screenshots/role-selection.jpeg)
+![Login Screen Admin](assets/app-screenshots/login-screen-admin.jpeg)
+![Manager Login](assets/app-screenshots/manager-login.png)
+![Employee Head Login](assets/app-screenshots/employee-head-login.png)
 
 ### Order Creation Workflow
 
-![Order Creation Step 1](fabri_sync/assets/app-screenshots/order-creation-step1.png)
-![Order Creation Step 2](fabri_sync/assets/app-screenshots/order-creation-step2.png)
-![Order Creation Step 3](fabri_sync/assets/app-screenshots/order-creation-step3.png)
-![Order Creation Step 4](fabri_sync/assets/app-screenshots/order-creation-step4.png)
-![Order Creation Step 5](fabri_sync/assets/app-screenshots/order-creation-step5.png)
-![Order Creation Step 5.1](fabri_sync/assets/app-screenshots/order-creation-step5.1.png)
-![Order Dialog Box](fabri_sync/assets/app-screenshots/order-dialog-box.png)
+![Order Creation Step 1](assets/app-screenshots/order-creation-step1.png)
+![Order Creation Step 2](assets/app-screenshots/order-creation-step2.png)
+![Order Creation Step 3](assets/app-screenshots/order-creation-step3.png)
+![Order Creation Step 4](assets/app-screenshots/order-creation-step4.png)
+![Order Creation Step 5](assets/app-screenshots/order-creation-step5.png)
+![Order Creation Step 5.1](assets/app-screenshots/order-creation-step5.1.png)
+![Order Dialog Box](assets/app-screenshots/order-dialog-box.png)
 
 ### Product Configuration Guides
 
-![Order Creation Guide Curtain](fabri_sync/assets/app-screenshots/order-creation-guide-curtain.png)
-![Order Creation Guide Abaya](fabri_sync/assets/app-screenshots/order-creation-guide-abaya.png)
-![Order Creation Guide Bedsheet](fabri_sync/assets/app-screenshots/order-creation-guide-bedsheet.png)
+![Order Creation Guide Curtain](assets/app-screenshots/order-creation-guide-curtain.png)
+![Order Creation Guide Abaya](assets/app-screenshots/order-creation-guide-abaya.png)
+![Order Creation Guide Bedsheet](assets/app-screenshots/order-creation-guide-bedsheet.png)
 
 ### Cost Estimation & Order Details
 
-![Order Details](fabri_sync/assets/app-screenshots/order-details.jpeg)
-![Order Details 1](fabri_sync/assets/app-screenshots/order-details-1.png)
-![All Orders Estimated Time](fabri_sync/assets/app-screenshots/all-orders-estimated-time.png)
+![Order Details](assets/app-screenshots/order-details.jpeg)
+![Order Details 1](assets/app-screenshots/order-details-1.png)
+![All Orders Estimated Time](assets/app-screenshots/all-orders-estimated-time.png)
 
 ### Admin Dashboard
 
-![Admin Dashboard](fabri_sync/assets/app-screenshots/admin-dashboard.jpeg)
-![Admin Table](fabri_sync/assets/app-screenshots/admin-table.jpeg)
-![Draft Orders](fabri_sync/assets/app-screenshots/draft-orders.jpeg)
+![Admin Dashboard](assets/app-screenshots/admin-dashboard.jpeg)
+![Admin Table](assets/app-screenshots/admin-table.jpeg)
+![Draft Orders](assets/app-screenshots/draft-orders.jpeg)
 
 ### Manager Dashboards
 
-![Manager Panel Cutting](fabri_sync/assets/app-screenshots/manager-panel-cutting.jpeg)
-![Manager Panel Inspection](fabri_sync/assets/app-screenshots/manager-panel-inspection.png)
-![Manager Panel Stitching](fabri_sync/assets/app-screenshots/manager-panel-stitching.png)
-![Manager Panel Threading](fabri_sync/assets/app-screenshots/maanger-panel-threading.png)
-![Manager Panel Packaging](fabri_sync/assets/app-screenshots/maanger-panel-packaging.png)
-![Manager Panel Quality Control](fabri_sync/assets/app-screenshots/maanger-panel-quality-control.png)
-![Manager Table View](fabri_sync/assets/app-screenshots/manager-table-view.png)
+![Manager Panel Cutting](assets/app-screenshots/manager-panel-cutting.jpeg)
+![Manager Panel Inspection](assets/app-screenshots/manager-panel-inspection.png)
+![Manager Panel Stitching](assets/app-screenshots/manager-panel-stitching.png)
+![Manager Panel Threading](assets/app-screenshots/maanger-panel-threading.png)
+![Manager Panel Packaging](assets/app-screenshots/maanger-panel-packaging.png)
+![Manager Panel Quality Control](assets/app-screenshots/maanger-panel-quality-control.png)
+![Manager Table View](assets/app-screenshots/manager-table-view.png)
 
 ### Employee Head Dashboard
 
-![Employee Head Panel Cutting](fabri_sync/assets/app-screenshots/employee-head-panel-cutting.png)
-![Employee Head Panel Stitching](fabri_sync/assets/app-screenshots/employee-head-panel-stitching.png)
-![Employee Head Panel Threading](fabri_sync/assets/app-screenshots/employee-head-panel-threading.png)
-![Employee Head Panel Quality Control](fabri_sync/assets/app-screenshots/employee-head-panel-quality-control.png)
-![Employee Head Panel Packaging](fabri_sync/assets/app-screenshots/employee-head-panel-packaging.png)
-![Employee Head Panel Inspection](fabri_sync/assets/app-screenshots/employee-head-panel-inspection.png)
+![Employee Head Panel Cutting](assets/app-screenshots/employee-head-panel-cutting.png)
+![Employee Head Panel Stitching](assets/app-screenshots/employee-head-panel-stitching.png)
+![Employee Head Panel Threading](assets/app-screenshots/employee-head-panel-threading.png)
+![Employee Head Panel Quality Control](assets/app-screenshots/employee-head-panel-quality-control.png)
+![Employee Head Panel Packaging](assets/app-screenshots/employee-head-panel-packaging.png)
+![Employee Head Panel Inspection](assets/app-screenshots/employee-head-panel-inspection.png)
 
 ## Future Enhancements
 

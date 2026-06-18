@@ -188,7 +188,7 @@ Activity diagrams describe the step-by-step workflows performed by each system r
 ### Admin Activity Diagram
 
 <p align="center">
-  <img src="assets/diagrams/AdminActivity.png" width="900" alt="Admin Activity Diagram">
+  <img src="assets/diagrams/AdminActivity.png" width="500" alt="Admin Activity Diagram">
 </p>
 
 The Admin activity diagram outlines the process of logging in, creating orders, configuring cost parameters, monitoring production workflows, and reviewing analytics.
@@ -198,7 +198,7 @@ The Admin activity diagram outlines the process of logging in, creating orders, 
 ### Manager Activity Diagram
 
 <p align="center">
-  <img src="assets/diagrams/ManagerActivity.png" width="900" alt="Manager Activity Diagram">
+  <img src="assets/diagrams/ManagerActivity.png" width="500" alt="Manager Activity Diagram">
 </p>
 
 The Manager activity diagram illustrates how department managers review assigned orders, monitor progress, and coordinate workflow execution.
@@ -208,7 +208,7 @@ The Manager activity diagram illustrates how department managers review assigned
 ### Employee Head Activity Diagram
 
 <p align="center">
-  <img src="assets/diagrams/EmployeeActivity.png" width="900" alt="Employee Head Activity Diagram">
+  <img src="assets/diagrams/EmployeeActivity.png" width="500" alt="Employee Head Activity Diagram">
 </p>
 
 The Employee Head activity diagram shows the workflow for updating item statuses, recording delays, completing department tasks, and progressing orders to the next department.

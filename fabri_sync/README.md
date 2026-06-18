@@ -360,12 +360,9 @@ flutter pub get
 
 ## Environment Variables
 
-Create build-time environment variables:
+This project uses **build-time environment variables (dart-define)**.
 
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+They are NOT stored in a .env file for web builds.
 
 ### Build for Web
 
@@ -404,7 +401,10 @@ flutter run
 1. Build the application using `flutter build web`.
 2. Upload the contents of the `build/web` folder.
 3. Configure SPA redirect rules.
-4. Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` as environment variables.
+4. 1. Run build command locally:
+
+```bash
+flutter build web --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
 
 ### Android APK
 

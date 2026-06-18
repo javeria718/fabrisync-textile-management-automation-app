@@ -483,7 +483,7 @@ Sign and distribute the APK using standard Android tooling.
 
 ## Contributors
 
-* **Javeria Shahid(22-NTU-CS-1272)**
+* **Javeria Shahid**
 
 ---
 

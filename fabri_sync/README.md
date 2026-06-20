@@ -471,7 +471,8 @@ flutter build apk --release
 
 ## Future Enhancements
 
-* Customer Order Portal
+* Native iOS testing and deployment
+* Offline synchronization
 * ERP Integration
 
 ---
